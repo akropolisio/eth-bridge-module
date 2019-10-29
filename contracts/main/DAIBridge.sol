@@ -9,7 +9,7 @@ contract DAIBridge is ValidatorsOperations {
 
     IERC20 private token;
 
-    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED}
+    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW}
 
         struct Message {
             bytes32 messageID;
@@ -24,6 +24,7 @@ contract DAIBridge is ValidatorsOperations {
         event RevertMessage(bytes32 messageID, address sender, uint amount);
         event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
         event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
+        event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
 
 
         mapping(bytes32 => Message) messages;
@@ -70,8 +71,13 @@ contract DAIBridge is ValidatorsOperations {
             _;
         }
 
-         modifier approvedMessage(bytes32 messageID) {
+        modifier approvedMessage(bytes32 messageID) {
             require(messages[messageID].status == Status.APPROVED, "Message is not approved");
+            _;
+        }
+
+         modifier withdrawMessage(bytes32 messageID) {
+            require(messages[messageID].status == Status.WITHDRAW, "Message is not approved");
             _;
         }
 
@@ -131,4 +137,12 @@ contract DAIBridge is ValidatorsOperations {
             emit WithdrawMessage(messageID, recipient, sender, availableAmount);
         }
 
+        /*
+        * Confirm Withdraw tranfer by message ID after approve from Substrate
+        */
+        function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) onlyManyValidators {
+            Message storage message = messages[messageID];
+            message.status = Status.CONFIRMED_WITHDRAW;
+            emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+        }
 }
