@@ -20,6 +20,7 @@ contract DAIBridge is ValidatorsOperations {
         }
 
         event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+        event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
         event RevertMessage(bytes32 messageID, address sender, uint amount);
         event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
         event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
@@ -116,6 +117,7 @@ contract DAIBridge is ValidatorsOperations {
         function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) onlyManyValidators {
             Message storage message = messages[messageID];
             message.status = Status.CONFIRMED;
+            emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
         }
 
         /*
