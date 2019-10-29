@@ -21,7 +21,7 @@ contract DAIBridge is ValidatorsOperations {
 
         event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
         event RevertMessage(bytes32 messageID, address sender, uint amount);
-        event WithdrawMessage(bytes32 MessageID);
+        event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
         event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
 
 
@@ -121,12 +121,12 @@ contract DAIBridge is ValidatorsOperations {
         /*
         * Withdraw tranfer by message ID after approve from Substrate
         */
-        function withdrawTransfer(bytes32 messageID, bytes32  substrateSender, address recipient, uint availableAmount)  public onlyManyValidators {
+        function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public onlyManyValidators {
             require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
             token.transfer(recipient, availableAmount);
-            Message  memory message = Message(messageID, msg.sender, substrateSender, availableAmount, Status.WITHDRAW);
+            Message  memory message = Message(messageID, msg.sender, sender, availableAmount, Status.WITHDRAW);
             messages[messageID] = message;
-            emit WithdrawMessage(messageID);
+            emit WithdrawMessage(messageID, recipient, sender, availableAmount);
         }
 
 }
