@@ -16,8 +16,14 @@ declare global {
         name: "ValidatorOperationsImpl"
       ): TruffleContracts.ValidatorOperationsImplContract;
       require(
+        name: "ValidatorOperationsMock"
+      ): TruffleContracts.ValidatorOperationsMockContract;
+      require(
         name: "ValidatorsOperations"
       ): TruffleContracts.ValidatorsOperationsContract;
+      require(
+        name: "ValidatorsOperationsMock"
+      ): TruffleContracts.ValidatorsOperationsMockContract;
     }
   }
 }
