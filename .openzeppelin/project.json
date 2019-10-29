@@ -1,0 +1,7 @@
+{
+  "manifestVersion": "2.2",
+  "contracts": {},
+  "dependencies": {},
+  "name": "eth-bridge-module",
+  "version": "0.3.1"
+}
