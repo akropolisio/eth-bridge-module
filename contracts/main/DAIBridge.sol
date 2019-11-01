@@ -26,6 +26,7 @@ contract DAIBridge is ValidatorsOperations {
         event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
         event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
         event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+        event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
 
 
         mapping(bytes32 => Message) messages;
@@ -77,8 +78,13 @@ contract DAIBridge is ValidatorsOperations {
             _;
         }
 
-         modifier withdrawMessage(bytes32 messageID) {
+        modifier withdrawMessage(bytes32 messageID) {
             require(messages[messageID].isExists && messages[messageID].status == Status.WITHDRAW, "Message is not approved");
+            _;
+        }
+
+        modifier cancelMessage(bytes32 messageID) {
+            require(messages[messageID].isExists && messages[messageID].status == Status.CANCELED, "Message is not canceled");
             _;
         }
 
@@ -143,4 +149,14 @@ contract DAIBridge is ValidatorsOperations {
             message.status = Status.CONFIRMED_WITHDRAW;
             emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
         }
+
+        /*
+        * Confirm Withdraw cancel by message ID after approve from Substrate
+        */
+         function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) onlyManyValidators {
+            Message storage message = messages[messageID];
+            message.status = Status.CONFIRMED_WITHDRAW;
+            emit ConfirmCancelMessage(messageID, sender, recipient, amount);(messageID, message.spender, message.substrateAddress, message.availableAmount);
+        }
+
 }
