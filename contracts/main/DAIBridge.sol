@@ -156,7 +156,7 @@ contract DAIBridge is ValidatorsOperations {
          function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) onlyManyValidators {
             Message storage message = messages[messageID];
             message.status = Status.CONFIRMED_WITHDRAW;
-            emit ConfirmCancelMessage(messageID, sender, recipient, amount);(messageID, message.spender, message.substrateAddress, message.availableAmount);
+            emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
         }
 
 }
