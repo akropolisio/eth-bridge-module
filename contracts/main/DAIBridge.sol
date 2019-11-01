@@ -9,13 +9,14 @@ contract DAIBridge is ValidatorsOperations {
 
     IERC20 private token;
 
-    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW}
+    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
 
         struct Message {
             bytes32 messageID;
             address spender;
             bytes32 substrateAddress;
             uint availableAmount;
+            bool isExists; //check message is exists
             Status status;
         }
 
@@ -52,7 +53,7 @@ contract DAIBridge is ValidatorsOperations {
             check available amount
         */
         modifier messageHasAmount(bytes32 messageID) {
-            require((messages[messageID].availableAmount > 0), "Amount withdraw");
+            require((messages[messageID].isExists && messages[messageID].availableAmount > 0), "Amount withdraw");
             _;
         }
 
@@ -60,24 +61,24 @@ contract DAIBridge is ValidatorsOperations {
             check that message is valid
         */
         modifier validMessage(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) {
-            require((messages[messageID].spender == spender)
+            require((messages[messageID].isExists && messages[messageID].spender == spender)
                 && (messages[messageID].substrateAddress == substrateAddress)
                 && (messages[messageID].availableAmount == availableAmount), "Data is not valid");
             _;
         }
 
         modifier pendingMessage(bytes32 messageID) {
-            require(messages[messageID].status == Status.PENDING, "Message is not pending");
+            require(messages[messageID].isExists && messages[messageID].status == Status.PENDING, "Message is not pending");
             _;
         }
 
         modifier approvedMessage(bytes32 messageID) {
-            require(messages[messageID].status == Status.APPROVED, "Message is not approved");
+            require(messages[messageID].isExists && messages[messageID].status == Status.APPROVED, "Message is not approved");
             _;
         }
 
          modifier withdrawMessage(bytes32 messageID) {
-            require(messages[messageID].status == Status.WITHDRAW, "Message is not approved");
+            require(messages[messageID].isExists && messages[messageID].status == Status.WITHDRAW, "Message is not approved");
             _;
         }
 
@@ -87,16 +88,13 @@ contract DAIBridge is ValidatorsOperations {
 
             bytes32 messageID = keccak256(abi.encodePacked(now));
 
-            Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, Status.PENDING);
+            Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, Status.PENDING);
             messages[messageID] = message;
 
             emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
         }
 
-        /*
-        * Widthdraw finance by message ID when transfer pending
-        */
-        function revertTransfer(bytes32 messageID) public pendingMessage(messageID) {
+        function revertTransfer(bytes32 messageID) public pendingMessage(messageID) onlyManyValidators {
             Message storage message = messages[messageID];
 
             message.status = Status.CANCELED;
@@ -132,7 +130,7 @@ contract DAIBridge is ValidatorsOperations {
         function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public onlyManyValidators {
             require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
             token.transfer(recipient, availableAmount);
-            Message  memory message = Message(messageID, msg.sender, sender, availableAmount, Status.WITHDRAW);
+            Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, Status.WITHDRAW);
             messages[messageID] = message;
             emit WithdrawMessage(messageID, recipient, sender, availableAmount);
         }
