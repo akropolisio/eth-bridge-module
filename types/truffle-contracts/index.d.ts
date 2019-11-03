@@ -444,6 +444,25 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  confirmCancelTransfer: {
+    (
+      messageID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      messageID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      messageID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      messageID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   allOperationsCount(
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
