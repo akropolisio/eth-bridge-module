@@ -1,5 +1,5 @@
-import { ValidatorOperationsImplInstance, ValidatorsOperationsInstance, ValidatorsOperationsMockInstance } from "../types/truffle-contracts/index";
-import EVMRevert from "./helpers/EVMRevert";
+import { ValidatorOperationsImplInstance, ValidatorsOperationsInstance, ValidatorsOperationsMockInstance } from "../../types/truffle-contracts/index";
+import EVMRevert from "../helpers/EVMRevert";
 
 // tslint:disable-next-line:no-var-requires
 const { BN, constants, expectEvent, shouldFail } = require("@openzeppelin/test-helpers");
