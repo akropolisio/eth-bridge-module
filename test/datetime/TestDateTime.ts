@@ -462,3 +462,69 @@ contract("---------- Test add{Years|Months|Days|Hours|Minutes|Seconds} ---------
     newTimestamp.should.bignumber.equal(expectedTimestamp);
   });
 });
+
+contract("---------- Test sub{Years|Months|Days|Hours|Minutes|Seconds} ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
+  let testDateTime: TestDateTimeInstance;
+  
+  beforeEach(async () => {
+    testDateTime = await testDateTimeMock.new();
+    
+  });
+
+  it("(2000, 2, 29, 1, 2, 3) - 3 years is 1997/02/28 01:02:03", async () => {
+    const timestamp: BigNumber = (await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3));
+    const newTimestamp: BigNumber = await testDateTime.subYears(timestamp, 3);
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1997, 2, 28, 1, 2, 3);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2000, 2, 29, 1, 2, 3) - 37 months is 1997/01/29 01:02:03", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3);
+    const newTimestamp: BigNumber = await testDateTime.subMonths(timestamp, 37);
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1997, 1, 29, 1, 2, 3);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2013, 1, 1, 1, 2, 3) - 3,756 days is 2002/09/20 01:02:03", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
+    const newTimestamp: BigNumber = await testDateTime.subDays(timestamp, 3756);
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2013, 1, 1, 1, 2, 3) - 3,756 * 24 hours is 2002/09/20 01:02:03", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
+    const newTimestamp: BigNumber = await testDateTime.subHours(timestamp, 3756 * 24);
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2015, 7, 15, 1, 2, 3) - 223,776 hours is 1990/01/03 01:02:03", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2015, 7, 15, 1, 2, 3);
+    const newTimestamp: BigNumber = await testDateTime.subHours(timestamp, "223776");
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1990, 1, 3, 1, 2, 3);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2018, 3, 1, 2, 3, 4) - 21,600,000 minutes is 1977/02/04 02:03:04", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 3, 1, 2, 3, 4);
+    const newTimestamp: BigNumber = await testDateTime.subMinutes(timestamp, "21600000");
+    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1977, 2, 4, 2, 3, 4);
+    
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2018, 3, 1, 2, 3, 4) - 21,600,000 minutes is 1977/02/04 02:03:04", async () => {
+    const timestamp = await testDateTime.timestampFromDateTime(2018, 3, 1, 2, 3, 4);
+    const newTimestamp = await testDateTime.subMinutes(timestamp, "21600000");
+    const expectedTimestamp = await testDateTime.timestampFromDateTime(1977, 2, 4, 2, 3, 4);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+
+  it("(2020, 3, 19, 3, 4, 5) - 788,227,200 seconds is 1995/03/28 03:04:05", async () => {
+    const timestamp = await testDateTime.timestampFromDateTime(2020, 3, 19, 3, 4, 5);
+    const newTimestamp = await testDateTime.subSeconds(timestamp, "788227200");
+    const expectedTimestamp = await testDateTime.timestampFromDateTime(1995, 3, 28, 3, 4, 5);
+    newTimestamp.should.bignumber.equal(expectedTimestamp);
+  });
+});
