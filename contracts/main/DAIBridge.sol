@@ -9,7 +9,9 @@ contract DAIBridge is ValidatorsOperations {
 
     IERC20 private token;
 
-    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
+    enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
+
+    enum BridgeStatus {ON, OFF, PAUSE}
 
     struct Message {
         bytes32 messageID;
@@ -17,7 +19,7 @@ contract DAIBridge is ValidatorsOperations {
         bytes32 substrateAddress;
         uint availableAmount;
         bool isExists; //check message is exists
-        Status status;
+        TransferStatus status;
     }
 
     event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
@@ -69,22 +71,22 @@ contract DAIBridge is ValidatorsOperations {
     }
 
     modifier pendingMessage(bytes32 messageID) {
-        require(messages[messageID].isExists && messages[messageID].status == Status.PENDING, "Message is not pending");
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.PENDING, "Message is not pending");
         _;
     }
 
     modifier approvedMessage(bytes32 messageID) {
-        require(messages[messageID].isExists && messages[messageID].status == Status.APPROVED, "Message is not approved");
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.APPROVED, "Message is not approved");
          _;
     }
 
     modifier withdrawMessage(bytes32 messageID) {
-        require(messages[messageID].isExists && messages[messageID].status == Status.WITHDRAW, "Message is not approved");
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.WITHDRAW, "Message is not approved");
          _;
     }
 
     modifier cancelMessage(bytes32 messageID) {
-         require(messages[messageID].isExists && messages[messageID].status == Status.CANCELED, "Message is not canceled");
+         require(messages[messageID].isExists && messages[messageID].status == TransferStatus.CANCELED, "Message is not canceled");
         _;
     }
 
@@ -94,7 +96,7 @@ contract DAIBridge is ValidatorsOperations {
 
         bytes32 messageID = keccak256(abi.encodePacked(now));
 
-        Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, Status.PENDING);
+        Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
         messages[messageID] = message;
 
          emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
@@ -103,7 +105,7 @@ contract DAIBridge is ValidatorsOperations {
     function revertTransfer(bytes32 messageID) public pendingMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
 
-        message.status = Status.CANCELED;
+        message.status = TransferStatus.CANCELED;
 
         token.transfer(msg.sender, message.availableAmount);
 
@@ -116,7 +118,7 @@ contract DAIBridge is ValidatorsOperations {
     function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount)
         public validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
-        message.status = Status.APPROVED;
+        message.status = TransferStatus.APPROVED;
 
         emit ApprovedRelayMessage(messageID, spender, substrateAddress, availableAmount);
     }
@@ -126,7 +128,7 @@ contract DAIBridge is ValidatorsOperations {
     */
     function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
-        message.status = Status.CONFIRMED;
+        message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -136,7 +138,7 @@ contract DAIBridge is ValidatorsOperations {
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public onlyManyValidators {
         require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
         token.transfer(recipient, availableAmount);
-        Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, Status.WITHDRAW);
+        Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
         messages[messageID] = message;
         emit WithdrawMessage(messageID, recipient, sender, availableAmount);
     }
@@ -146,7 +148,7 @@ contract DAIBridge is ValidatorsOperations {
     */
     function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
-        message.status = Status.CONFIRMED_WITHDRAW;
+        message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -155,7 +157,7 @@ contract DAIBridge is ValidatorsOperations {
     */
     function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
-        message.status = Status.CONFIRMED_WITHDRAW;
+        message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 }
