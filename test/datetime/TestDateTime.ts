@@ -146,4 +146,28 @@ contract("---------- Test _isLeapYear ---------- BokkyPooBahsDateTimeContract", 
 
 });
 
+contract("---------- Test isWeekDay ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
+  let testDateTime: TestDateTimeInstance;
+
+  beforeEach(async () => {
+    testDateTime = await testDateTimeMock.new();
+  });
+
+  it("(2018, 5, 24, 1, 2, 3) is a week day", async () => {
+      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
+      (await testDateTime.isWeekDay(timestamp)).should.be.true;
+  });
+
+  it("(2018, 5, 25, 1, 2, 3) is a week day", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 25, 1, 2, 3);
+    (await testDateTime.isWeekDay(timestamp)).should.be.true;
+  });
+  
+  it("(2018, 5, 26, 1, 2, 3) is a not week day", async () => {
+    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
+    (await testDateTime.isWeekDay(timestamp)).should.be.false;
+  });
+});
+
+
 
