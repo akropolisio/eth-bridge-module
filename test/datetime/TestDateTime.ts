@@ -528,3 +528,39 @@ contract("---------- Test sub{Years|Months|Days|Hours|Minutes|Seconds} ---------
     newTimestamp.should.bignumber.equal(expectedTimestamp);
   });
 });
+
+contract("---------- Test diff{Years|Months|Days|Hours|Minutes|Seconds} ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
+  let testDateTime: TestDateTimeInstance;
+  let fromTimestamp: BigNumber;
+  let toTimestamp: BigNumber;
+
+  beforeEach(async () => {
+    testDateTime = await testDateTimeMock.new();
+    fromTimestamp = await testDateTime.timestampFromDateTime(2017, 10, 21, 1, 2, 3);
+    toTimestamp = await testDateTime.timestampFromDateTime(2019, 7, 18, 4, 5, 6);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6)  has 2 years diff", async () => {
+    (await testDateTime.diffYears(fromTimestamp, toTimestamp)).toNumber().should.equal(2);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6) has 21 months diff", async () => {
+    (await testDateTime.diffMonths(fromTimestamp, toTimestamp)).toNumber().should.equal(21);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6)  has 635 days diff", async () => {
+    (await testDateTime.diffDays(fromTimestamp, toTimestamp)).toNumber().should.equal(635);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6) has 15,243 hours diff", async () => {
+    (await testDateTime.diffHours(fromTimestamp, toTimestamp)).toNumber().should.equal(15243);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6) has 914,583 minutes diff", async () => {
+    (await testDateTime.diffMinutes(fromTimestamp, toTimestamp)).toNumber().should.equal(914583);
+  });
+
+  it("(2017, 10, 21, 1, 2, 3) to (2019, 7, 18, 4, 5, 6) has 54,874,983 seconds diff", async () => {
+    (await testDateTime.diffSeconds(fromTimestamp, toTimestamp)).toNumber().should.equal(54874983);
+  });
+});
