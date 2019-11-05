@@ -14,7 +14,7 @@ const testDateTimeMock = artifacts.require("TestDateTime");
 contract("---------- Test isLeapYear ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
     let testDateTime: TestDateTimeInstance;
 
-    beforeEach(async function() {
+    beforeEach(async () =>  {
         testDateTime = await testDateTimeMock.new();    
     });
 
@@ -37,7 +37,7 @@ contract("---------- Test isLeapYear ---------- BokkyPooBahsDateTimeContract", a
 contract("---------- Test isValidDate and isValidDateTime ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
     let testDateTime: TestDateTimeInstance;
 
-    beforeEach(async function() {
+    beforeEach(async () => {
       testDateTime = await testDateTimeMock.new();    
     });
 
@@ -65,7 +65,6 @@ contract("---------- Test isValidDate and isValidDateTime ---------- BokkyPooBah
       (await testDateTime.isValidDate(2001, 1, 0)).should.be.false;
     });
     
-  
     it("testDateTime.isValidDateTime(2000, 2, 29, 0, 0, 0) is true", async () => {
       (await testDateTime.isValidDateTime(2000, 2, 29, 0, 0, 0)).should.be.true;
     });
@@ -98,3 +97,53 @@ contract("---------- Test isValidDate and isValidDateTime ---------- BokkyPooBah
       (await testDateTime.isValidDateTime(2000, 2, 29, 1, 1, 60)).should.be.false;
     });
 });
+
+contract("---------- Test _isLeapYear ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
+  let testDateTime: TestDateTimeInstance;
+
+  beforeEach(async () => {
+    testDateTime = await testDateTimeMock.new();
+  });
+
+  it("2000 is a leap year", async () => {
+      
+      (await testDateTime._isLeapYear(2000)).should.be.true;
+  });
+
+  it("2100 is a not leap year", async () => {
+    
+    (await testDateTime._isLeapYear(2100)).should.be.false;
+  });
+  
+  it("2104 is a leap year", async () => {
+    
+    (await testDateTime._isLeapYear(2104)).should.be.true;
+  });
+
+});
+
+contract("---------- Test _isLeapYear ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
+  let testDateTime: TestDateTimeInstance;
+
+  beforeEach(async () => {
+    testDateTime = await testDateTimeMock.new();
+  });
+
+  it("2000 is a leap year", async () => {
+      
+      (await testDateTime._isLeapYear(2000)).should.be.true;
+  });
+
+  it("2100 is a not leap year", async () => {
+    
+    (await testDateTime._isLeapYear(2100)).should.be.false;
+  });
+  
+  it("2104 is a leap year", async () => {
+    
+    (await testDateTime._isLeapYear(2104)).should.be.true;
+  });
+
+});
+
+
