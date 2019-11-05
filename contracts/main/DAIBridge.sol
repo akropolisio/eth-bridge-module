@@ -31,8 +31,14 @@ contract DAIBridge is ValidatorsOperations {
     event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
 
 
+    event BridgeStarted();
+    event BridgeStopped();
+    event BridgePaused();
+
     mapping(bytes32 => Message) messages;
     mapping(address => Message) messagesBySender;
+
+    BridgeStatus bridgeStatus;
 
     /**
     * @notice Constructor.
@@ -90,7 +96,17 @@ contract DAIBridge is ValidatorsOperations {
         _;
     }
 
-    function setTransfer(uint amount, bytes32 substrateAddress) public {
+    modifier activeBridgeStatus() {
+        require(bridgeStatus == BridgeStatus.ON, "Bridge is on pause or deactivated");
+        _;
+    }
+
+    modifier notActiveBridgeStatus() {
+        require((bridgeStatus == BridgeStatus.PAUSE || bridgeStatus == BridgeStatus.OFF), "Bridge is actived");
+        _;
+    }
+
+    function setTransfer(uint amount, bytes32 substrateAddress) public activeBridgeStatus {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
 
@@ -102,7 +118,7 @@ contract DAIBridge is ValidatorsOperations {
          emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
     }
 
-    function revertTransfer(bytes32 messageID) public pendingMessage(messageID) onlyManyValidators {
+    function revertTransfer(bytes32 messageID) public pendingMessage(messageID) activeBridgeStatus onlyManyValidators {
         Message storage message = messages[messageID];
 
         message.status = TransferStatus.CANCELED;
@@ -116,7 +132,7 @@ contract DAIBridge is ValidatorsOperations {
     * Approve finance by message ID when transfer pending
     */
     function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount)
-        public validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
+        public activeBridgeStatus validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
@@ -126,7 +142,7 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm tranfer by message ID when transfer pending
     */
-    function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) onlyManyValidators {
+    function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) activeBridgeStatus onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
@@ -135,7 +151,7 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Withdraw tranfer by message ID after approve from Substrate
     */
-    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public onlyManyValidators {
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public activeBridgeStatus onlyManyValidators {
         require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
@@ -146,7 +162,7 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm Withdraw tranfer by message ID after approve from Substrate
     */
-    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) onlyManyValidators {
+    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) activeBridgeStatus onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
@@ -155,9 +171,25 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm Withdraw cancel by message ID after approve from Substrate
     */
-    function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) onlyManyValidators {
+    function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) activeBridgeStatus onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+    }
+
+    /* Bridge Status Function */
+    function resumeBridge() public notActiveBridgeStatus onlyManyValidators {
+        bridgeStatus = BridgeStatus.ON;
+        emit BridgeStarted();
+    }
+
+    function stopBridge() public onlyManyValidators {
+        bridgeStatus = BridgeStatus.OFF;
+        emit BridgeStopped();
+    }
+
+    function pauseBridge() public onlyManyValidators {
+        bridgeStatus = BridgeStatus.PAUSE;
+        emit BridgePaused();
     }
 }
