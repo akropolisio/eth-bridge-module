@@ -11,7 +11,7 @@ contract DAIBridge is ValidatorsOperations {
 
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
 
-    enum BridgeStatus {ON, OFF, PAUSE}
+    enum BridgeStatus {ACTIVE, PAUSED, STOPPED}
 
     struct Message {
         bytes32 messageID;
@@ -97,12 +97,12 @@ contract DAIBridge is ValidatorsOperations {
     }
 
     modifier activeBridgeStatus() {
-        require(bridgeStatus == BridgeStatus.ON, "Bridge is on pause or deactivated");
+        require(bridgeStatus == BridgeStatus.ACTIVE, "Bridge is stopped or paused");
         _;
     }
 
-    modifier notActiveBridgeStatus() {
-        require((bridgeStatus == BridgeStatus.PAUSE || bridgeStatus == BridgeStatus.OFF), "Bridge is actived");
+    modifier stoppedOrPausedBridgeStatus() {
+        require((bridgeStatus == BridgeStatus.PAUSED || bridgeStatus == BridgeStatus.STOPPED), "Bridge is actived");
         _;
     }
 
@@ -178,18 +178,18 @@ contract DAIBridge is ValidatorsOperations {
     }
 
     /* Bridge Status Function */
-    function resumeBridge() public notActiveBridgeStatus onlyManyValidators {
-        bridgeStatus = BridgeStatus.ON;
+    function resumeBridge() public stoppedOrPausedBridgeStatus onlyManyValidators {
+        bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted();
     }
 
     function stopBridge() public onlyManyValidators {
-        bridgeStatus = BridgeStatus.OFF;
+        bridgeStatus = BridgeStatus.STOPPED;
         emit BridgeStopped();
     }
 
     function pauseBridge() public onlyManyValidators {
-        bridgeStatus = BridgeStatus.PAUSE;
+        bridgeStatus = BridgeStatus.PAUSED;
         emit BridgePaused();
     }
 }
