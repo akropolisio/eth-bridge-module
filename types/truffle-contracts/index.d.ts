@@ -4,6 +4,13 @@
 /// <reference types="truffle-typings" />
 import { BigNumber } from "bignumber.js";
 
+export interface BokkyPooBahsDateTimeContractContract
+  extends Truffle.Contract<BokkyPooBahsDateTimeContractInstance> {
+  "new"(
+    meta?: Truffle.TransactionDetails
+  ): Promise<BokkyPooBahsDateTimeContractInstance>;
+}
+
 export interface Counter_V0Contract
   extends Truffle.Contract<Counter_V0Instance> {
   "new"(meta?: Truffle.TransactionDetails): Promise<Counter_V0Instance>;
@@ -23,6 +30,11 @@ export interface DAIBridgeContract extends Truffle.Contract<DAIBridgeInstance> {
 
 export interface IERC20Contract extends Truffle.Contract<IERC20Instance> {
   "new"(meta?: Truffle.TransactionDetails): Promise<IERC20Instance>;
+}
+
+export interface TestDateTimeContract
+  extends Truffle.Contract<TestDateTimeInstance> {
+  "new"(meta?: Truffle.TransactionDetails): Promise<TestDateTimeInstance>;
 }
 
 export interface ValidatorOperationsImplContract
@@ -51,6 +63,262 @@ export interface ValidatorsOperationsMockContract
   "new"(
     meta?: Truffle.TransactionDetails
   ): Promise<ValidatorsOperationsMockInstance>;
+}
+
+export interface BokkyPooBahsDateTimeContractInstance
+  extends Truffle.ContractInstance {
+  _nowDateTime(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]
+  >;
+
+  _daysFromDate(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  _daysToDate(
+    _days: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+  timestampFromDate(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  timestampFromDateTime(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    hour: number | BigNumber | string,
+    minute: number | BigNumber | string,
+    second: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  timestampToDate(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+  timestampToDateTime(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]
+  >;
+
+  isValidDate(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isValidDateTime(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    hour: number | BigNumber | string,
+    minute: number | BigNumber | string,
+    second: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isLeapYear(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  _isLeapYear(
+    year: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isWeekDay(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isWeekEnd(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  getDaysInMonth(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  _getDaysInMonth(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getDayOfWeek(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getYear(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getMonth(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getDay(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getHour(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getMinute(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getSecond(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addYears(
+    timestamp: number | BigNumber | string,
+    _years: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addMonths(
+    timestamp: number | BigNumber | string,
+    _months: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addDays(
+    timestamp: number | BigNumber | string,
+    _days: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addHours(
+    timestamp: number | BigNumber | string,
+    _hours: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addMinutes(
+    timestamp: number | BigNumber | string,
+    _minutes: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addSeconds(
+    timestamp: number | BigNumber | string,
+    _seconds: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subYears(
+    timestamp: number | BigNumber | string,
+    _years: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subMonths(
+    timestamp: number | BigNumber | string,
+    _months: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subDays(
+    timestamp: number | BigNumber | string,
+    _days: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subHours(
+    timestamp: number | BigNumber | string,
+    _hours: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subMinutes(
+    timestamp: number | BigNumber | string,
+    _minutes: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subSeconds(
+    timestamp: number | BigNumber | string,
+    _seconds: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffYears(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffMonths(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffDays(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffHours(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffMinutes(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffSeconds(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  DOW_FRI(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_MON(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_SAT(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_SUN(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_THU(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_TUE(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  DOW_WED(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  OFFSET19700101(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  SECONDS_PER_DAY(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  SECONDS_PER_HOUR(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+  SECONDS_PER_MINUTE(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+  _now(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface Counter_V0Instance extends Truffle.ContractInstance {
@@ -561,6 +829,239 @@ export interface IERC20Instance extends Truffle.ContractInstance {
   };
 
   totalSupply(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+}
+
+export interface TestDateTimeInstance extends Truffle.ContractInstance {
+  timestampFromDate(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  timestampFromDateTime(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    hour: number | BigNumber | string,
+    minute: number | BigNumber | string,
+    second: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  timestampToDate(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<[BigNumber, BigNumber, BigNumber]>;
+
+  timestampToDateTime(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [BigNumber, BigNumber, BigNumber, BigNumber, BigNumber, BigNumber]
+  >;
+
+  isLeapYear(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  _isLeapYear(
+    year: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isWeekDay(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isWeekEnd(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  getDaysInMonth(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  _getDaysInMonth(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getDayOfWeek(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  isValidDate(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  isValidDateTime(
+    year: number | BigNumber | string,
+    month: number | BigNumber | string,
+    day: number | BigNumber | string,
+    hour: number | BigNumber | string,
+    minute: number | BigNumber | string,
+    second: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
+
+  getYear(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getMonth(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getDay(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getHour(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getMinute(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  getSecond(
+    timestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addYears(
+    timestamp: number | BigNumber | string,
+    _years: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addMonths(
+    timestamp: number | BigNumber | string,
+    _months: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addDays(
+    timestamp: number | BigNumber | string,
+    _days: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addHours(
+    timestamp: number | BigNumber | string,
+    _hours: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addMinutes(
+    timestamp: number | BigNumber | string,
+    _minutes: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  addSeconds(
+    timestamp: number | BigNumber | string,
+    _seconds: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subYears(
+    timestamp: number | BigNumber | string,
+    _years: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subMonths(
+    timestamp: number | BigNumber | string,
+    _months: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subDays(
+    timestamp: number | BigNumber | string,
+    _days: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subHours(
+    timestamp: number | BigNumber | string,
+    _hours: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subMinutes(
+    timestamp: number | BigNumber | string,
+    _minutes: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  subSeconds(
+    timestamp: number | BigNumber | string,
+    _seconds: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffYears(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffMonths(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffDays(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffHours(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffMinutes(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  diffSeconds(
+    fromTimestamp: number | BigNumber | string,
+    toTimestamp: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  test: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
+  nextYear(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface ValidatorOperationsImplInstance

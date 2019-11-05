@@ -1,9 +1,9 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.5.0;
 
-import "../helpers/ValidatorsOperations.sol";
+import "../../helpers/ValidatorsOperations.sol";
 
 
-contract ValidatorOperationsImpl is ValidatorsOperations {
+contract ValidatorsOperationsMock is ValidatorsOperations {
 
     uint public value;
 
@@ -69,4 +69,5 @@ contract ValidatorOperationsImpl is ValidatorsOperations {
     function nestedSecondSome(uint _value, uint howMany) public onlySomeValidators(howMany) {
         value = _value;
     }
+
 }

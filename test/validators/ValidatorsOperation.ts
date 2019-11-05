@@ -1,5 +1,5 @@
-import { ValidatorOperationsImplInstance, ValidatorsOperationsInstance, ValidatorsOperationsMockInstance } from "../types/truffle-contracts/index";
-import EVMRevert from "./helpers/EVMRevert";
+import {ValidatorsOperationsInstance, ValidatorsOperationsMockInstance } from "../../types/truffle-contracts/index";
+import EVMRevert from "../helpers/EVMRevert";
 
 // tslint:disable-next-line:no-var-requires
 const { BN, constants, expectEvent, shouldFail } = require("@openzeppelin/test-helpers");
@@ -20,8 +20,6 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
       validatorsOperations = await ValidatorsOperations.new();
       validatorsOperationsMock = await ValidatorsOperationsMock.new();
     });
-
-
   
    it("should be initialized correctly", async () => {
         (await validatorsOperations.validators(0)).should.be.equal(_);
