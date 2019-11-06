@@ -53,9 +53,14 @@ contract DAIBridge is ValidatorsOperations {
     * @notice Constructor.
     * @param _token  Address of DAI token
     */
-    constructor (IERC20 _token) public
+    constructor (IERC20 _token, uint _minTransactionValue, uint _maxTransactionValue, uint _dayMaxLimit, uint _dayMaxLimitForOneAddress, uint _maxPendingTransactionLimit) public
         ValidatorsOperations() {
         token = _token;
+        limits.minTransactionValue = _minTransactionValue;
+        limits.maxTransactionValue = _maxTransactionValue;
+        limits.dayMaxLimit = _dayMaxLimit;
+        limits.dayMaxLimitForOneAddress = _dayMaxLimitForOneAddress;
+        limits.maxTransactionValue = _maxPendingTransactionLimit;
     }  
 
     // MODIFIERS

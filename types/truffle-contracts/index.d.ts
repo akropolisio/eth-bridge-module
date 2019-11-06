@@ -24,6 +24,11 @@ export interface Counter_V1Contract
 export interface DAIBridgeContract extends Truffle.Contract<DAIBridgeInstance> {
   "new"(
     _token: string | BigNumber,
+    _minTransactionValue: number | BigNumber | string,
+    _maxTransactionValue: number | BigNumber | string,
+    _dayMaxLimit: number | BigNumber | string,
+    _dayMaxLimitForOneAddress: number | BigNumber | string,
+    _maxPendingTransactionLimit: number | BigNumber | string,
     meta?: Truffle.TransactionDetails
   ): Promise<DAIBridgeInstance>;
 }
