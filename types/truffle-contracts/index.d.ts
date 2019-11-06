@@ -67,6 +67,32 @@ export interface ValidatorsOperationsMockContract
 
 export interface BokkyPooBahsDateTimeContractInstance
   extends Truffle.ContractInstance {
+  DOW_FRI(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_MON(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_SAT(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_SUN(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_THU(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_TUE(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  DOW_WED(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  OFFSET19700101(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  SECONDS_PER_DAY(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  SECONDS_PER_HOUR(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  SECONDS_PER_MINUTE(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  _now(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
   _nowDateTime(
     txDetails?: Truffle.TransactionDetails
   ): Promise<
@@ -304,21 +330,6 @@ export interface BokkyPooBahsDateTimeContractInstance
     toTimestamp: number | BigNumber | string,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
-
-  DOW_FRI(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_MON(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_SAT(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_SUN(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_THU(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_TUE(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  DOW_WED(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  OFFSET19700101(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  SECONDS_PER_DAY(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  SECONDS_PER_HOUR(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  SECONDS_PER_MINUTE(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  _now(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface Counter_V0Instance extends Truffle.ContractInstance {
@@ -380,6 +391,7 @@ export interface Counter_V0Instance extends Truffle.ContractInstance {
   };
 
   owner(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
   getCounter(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
@@ -461,6 +473,7 @@ export interface Counter_V1Instance extends Truffle.ContractInstance {
   };
 
   owner(txDetails?: Truffle.TransactionDetails): Promise<string>;
+
   getCounter(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
@@ -470,32 +483,11 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
 
+  allOperationsCount(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
   allOperationsIndicies(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  isExistValidator(
-    wallet: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
-
-  validators(
-    arg0: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
-
-  validatorsIndices(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesCountByOperation(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesMaskByOperation(
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -527,6 +519,15 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  howManyValidatorsDecide(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  isExistValidator(
+    wallet: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
 
   transferValidatorShip: {
     (
@@ -569,6 +570,32 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  validators(
+    arg0: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
+
+  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  validatorsGeneration(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  validatorsIndices(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  votesCountByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  votesMaskByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   setTransfer: {
     (
@@ -757,28 +784,13 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
     estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
   };
-
-  allOperationsCount(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  howManyValidatorsDecide(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  validatorsGeneration(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
 }
 
 export interface IERC20Instance extends Truffle.ContractInstance {
+  totalSupply(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
   balanceOf(
     account: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  allowance(
-    owner: string | BigNumber,
-    spender: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
 
@@ -804,6 +816,12 @@ export interface IERC20Instance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  allowance(
+    owner: string | BigNumber,
+    spender: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   approve: {
     (
@@ -854,11 +872,20 @@ export interface IERC20Instance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
-
-  totalSupply(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface TestDateTimeInstance extends Truffle.ContractInstance {
+  nextYear(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  test: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   timestampFromDate(
     year: number | BigNumber | string,
     month: number | BigNumber | string,
@@ -1078,17 +1105,6 @@ export interface TestDateTimeInstance extends Truffle.ContractInstance {
     toTimestamp: number | BigNumber | string,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
-
-  test: {
-    (txDetails?: Truffle.TransactionDetails): Promise<
-      Truffle.TransactionResponse
-    >;
-    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
-    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
-    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
-  };
-
-  nextYear(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface ValidatorOperationsImplInstance
@@ -1098,32 +1114,11 @@ export interface ValidatorOperationsImplInstance
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
 
+  allOperationsCount(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
   allOperationsIndicies(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  isExistValidator(
-    wallet: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
-
-  validators(
-    arg0: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
-
-  validatorsIndices(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesCountByOperation(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesMaskByOperation(
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -1155,6 +1150,15 @@ export interface ValidatorOperationsImplInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  howManyValidatorsDecide(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  isExistValidator(
+    wallet: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
 
   transferValidatorShip: {
     (
@@ -1197,6 +1201,34 @@ export interface ValidatorOperationsImplInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  validators(
+    arg0: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
+
+  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  validatorsGeneration(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  validatorsIndices(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  votesCountByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  votesMaskByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   setValue: {
     (
@@ -1498,18 +1530,6 @@ export interface ValidatorOperationsImplInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
-
-  allOperationsCount(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  howManyValidatorsDecide(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  validatorsGeneration(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface ValidatorOperationsMockInstance
@@ -1519,32 +1539,11 @@ export interface ValidatorOperationsMockInstance
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
 
+  allOperationsCount(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
   allOperationsIndicies(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  isExistValidator(
-    wallet: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
-
-  validators(
-    arg0: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
-
-  validatorsIndices(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesCountByOperation(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesMaskByOperation(
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -1576,6 +1575,15 @@ export interface ValidatorOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  howManyValidatorsDecide(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  isExistValidator(
+    wallet: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
 
   transferValidatorShip: {
     (
@@ -1618,6 +1626,34 @@ export interface ValidatorOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  validators(
+    arg0: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
+
+  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  validatorsGeneration(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  validatorsIndices(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  votesCountByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  votesMaskByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   setValue: {
     (
@@ -1919,18 +1955,6 @@ export interface ValidatorOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
-
-  allOperationsCount(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  howManyValidatorsDecide(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  validatorsGeneration(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
 
 export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
@@ -1944,10 +1968,18 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
 
+  howManyValidatorsDecide(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
   validators(
     arg0: number | BigNumber | string,
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
+
+  validatorsGeneration(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   validatorsIndices(
     arg0: string | BigNumber,
@@ -1963,11 +1995,6 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
-
-  isExistValidator(
-    wallet: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
 
   cancelPending: {
     (
@@ -2039,13 +2066,13 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
   };
 
-  howManyValidatorsDecide(
+  isExistValidator(
+    wallet: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  validatorsGeneration(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+  ): Promise<boolean>;
+
   validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
   allOperationsCount(
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -2058,32 +2085,11 @@ export interface ValidatorsOperationsMockInstance
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
 
+  allOperationsCount(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
   allOperationsIndicies(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  isExistValidator(
-    wallet: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<boolean>;
-
-  validators(
-    arg0: number | BigNumber | string,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<string>;
-
-  validatorsIndices(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesCountByOperation(
-    arg0: string | BigNumber,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  votesMaskByOperation(
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -2115,6 +2121,15 @@ export interface ValidatorsOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  howManyValidatorsDecide(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  isExistValidator(
+    wallet: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<boolean>;
 
   transferValidatorShip: {
     (
@@ -2157,6 +2172,34 @@ export interface ValidatorsOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  validators(
+    arg0: number | BigNumber | string,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
+
+  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  validatorsGeneration(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  validatorsIndices(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
+
+  votesCountByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
+
+  votesMaskByOperation(
+    arg0: string | BigNumber,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<BigNumber>;
 
   setValue: {
     (
@@ -2458,16 +2501,4 @@ export interface ValidatorsOperationsMockInstance
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
-
-  allOperationsCount(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  howManyValidatorsDecide(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  validatorsCount(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-  validatorsGeneration(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-  value(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 }
