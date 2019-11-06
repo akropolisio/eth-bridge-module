@@ -37,7 +37,7 @@ contract ValidatorsOperations {
     mapping(uint8 => uint8) internal operationsCountByValidatorIndex;
     // EVENTS
 
-    event ChangeValidatorsList(address[] previousValidators, uint howManyValidatorsDecide, address[] newvalidators, uint newHowManyValidatorsDecide);
+    event changeValidatorsList(address[] previousValidators, uint howManyValidatorsDecide, address[] newvalidators, uint newHowManyValidatorsDecide);
     event OperationCreated(bytes32 operation, uint howMany, uint validatorsCount, address proposer);
     event OperationUpvoted(bytes32 operation, uint votes, uint howMany, uint validatorsCount, address upvoter);
     event OperationPerformed(bytes32 operation, uint howMany, uint validatorsCount, address performer);
@@ -75,8 +75,8 @@ contract ValidatorsOperations {
     * @dev Allows validators to change validatorsship
     * @param newValidators defines array of addresses of new validators
     */
-    function ChangeValidators(address[] memory newValidators) public {
-        ChangeValidatorsWithHowMany(newValidators, howManyValidatorsDecide);
+    function changeValidators(address[] memory newValidators) public {
+        changeValidatorsWithHowMany(newValidators, newValidators.length);
     }
 
     /**
@@ -84,24 +84,24 @@ contract ValidatorsOperations {
     * @param newValidators defines array of addresses of new validators
     * @param newHowManyValidatorsDecide defines how many validators can decide
     */
-    function ChangeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) public onlyManyValidators {
-        require(newValidators.length > 0, "ChangeValidatorsWithHowMany: validators array is empty");
-        require(newValidators.length < 256, "ChangeValidatorsWithHowMany: validators count is greater then 255");
-        require(newHowManyValidatorsDecide > 0, "ChangeValidatorsWithHowMany: newHowManyValidatorsDecide equal to 0");
+    function changeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) public onlyManyValidators {
+        require(newValidators.length > 0, "changeValidatorsWithHowMany: validators array is empty");
+        require(newValidators.length < 256, "changeValidatorsWithHowMany: validators count is greater then 255");
+        require(newHowManyValidatorsDecide > 0, "changeValidatorsWithHowMany: newHowManyValidatorsDecide equal to 0");
         require(newHowManyValidatorsDecide <= newValidators.length, 
-        "ChangeValidatorsWithHowMany: newHowManyValidatorsDecide exceeds the number of Validators");
+        "changeValidatorsWithHowMany: newHowManyValidatorsDecide exceeds the number of Validators");
 
         // Reset validators reverse lookup table
         for (uint j = 0; j < validators.length; j++) {
             delete validatorsIndices[validators[j]];
         }
         for (uint i = 0; i < newValidators.length; i++) {
-            require(newValidators[i] != address(0), "ChangeValidatorsWithHowMany: validators array contains zero");
-            require(validatorsIndices[newValidators[i]] == 0, "ChangeValidatorsWithHowMany: validators array contains duplicates");
+            require(newValidators[i] != address(0), "changeValidatorsWithHowMany: validators array contains zero");
+            require(validatorsIndices[newValidators[i]] == 0, "changeValidatorsWithHowMany: validators array contains duplicates");
             validatorsIndices[newValidators[i]] = uint8(i.add(1));
         }
         
-        emit ChangeValidatorsList(validators, howManyValidatorsDecide, newValidators, newHowManyValidatorsDecide);
+        emit changeValidatorsList(validators, howManyValidatorsDecide, newValidators, newHowManyValidatorsDecide);
         validators = newValidators;
         howManyValidatorsDecide = newHowManyValidatorsDecide;
 

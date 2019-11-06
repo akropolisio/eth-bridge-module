@@ -478,7 +478,7 @@ export interface Counter_V1Instance extends Truffle.ContractInstance {
 }
 
 export interface DAIBridgeInstance extends Truffle.ContractInstance {
-  ChangeValidators: {
+  changeValidators: {
     (
       newValidators: (string | BigNumber)[],
       txDetails?: Truffle.TransactionDetails
@@ -497,7 +497,7 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  ChangeValidatorsWithHowMany: {
+  changeValidatorsWithHowMany: {
     (
       newValidators: (string | BigNumber)[],
       newHowManyValidatorsDecide: number | BigNumber | string,
@@ -2015,7 +2015,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  ChangeValidators: {
+  changeValidators: {
     (
       newValidators: (string | BigNumber)[],
       txDetails?: Truffle.TransactionDetails
@@ -2034,7 +2034,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  ChangeValidatorsWithHowMany: {
+  changeValidatorsWithHowMany: {
     (
       newValidators: (string | BigNumber)[],
       newHowManyValidatorsDecide: number | BigNumber | string,
@@ -2080,7 +2080,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
 
 export interface ValidatorsOperationsMockInstance
   extends Truffle.ContractInstance {
-  ChangeValidators: {
+  changeValidators: {
     (
       newValidators: (string | BigNumber)[],
       txDetails?: Truffle.TransactionDetails
@@ -2099,7 +2099,7 @@ export interface ValidatorsOperationsMockInstance
     ): Promise<number>;
   };
 
-  ChangeValidatorsWithHowMany: {
+  changeValidatorsWithHowMany: {
     (
       newValidators: (string | BigNumber)[],
       newHowManyValidatorsDecide: number | BigNumber | string,
