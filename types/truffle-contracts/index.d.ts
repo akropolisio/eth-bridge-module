@@ -478,6 +478,48 @@ export interface Counter_V1Instance extends Truffle.ContractInstance {
 }
 
 export interface DAIBridgeInstance extends Truffle.ContractInstance {
+  ChangeValidators: {
+    (
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  ChangeValidatorsWithHowMany: {
+    (
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   allOperations(
     arg0: number | BigNumber | string,
     txDetails?: Truffle.TransactionDetails
@@ -528,48 +570,6 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     wallet: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<boolean>;
-
-  transferValidatorShip: {
-    (
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
-  transferValidatorShipWithHowMany: {
-    (
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
 
   validators(
     arg0: number | BigNumber | string,
@@ -2015,7 +2015,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  transferValidatorShip: {
+  ChangeValidators: {
     (
       newValidators: (string | BigNumber)[],
       txDetails?: Truffle.TransactionDetails
@@ -2034,7 +2034,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  transferValidatorShipWithHowMany: {
+  ChangeValidatorsWithHowMany: {
     (
       newValidators: (string | BigNumber)[],
       newHowManyValidatorsDecide: number | BigNumber | string,
@@ -2080,6 +2080,48 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
 
 export interface ValidatorsOperationsMockInstance
   extends Truffle.ContractInstance {
+  ChangeValidators: {
+    (
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  ChangeValidatorsWithHowMany: {
+    (
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   allOperations(
     arg0: number | BigNumber | string,
     txDetails?: Truffle.TransactionDetails
@@ -2130,48 +2172,6 @@ export interface ValidatorsOperationsMockInstance
     wallet: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<boolean>;
-
-  transferValidatorShip: {
-    (
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      newValidators: (string | BigNumber)[],
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
-  transferValidatorShipWithHowMany: {
-    (
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      newValidators: (string | BigNumber)[],
-      newHowManyValidatorsDecide: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
 
   validators(
     arg0: number | BigNumber | string,
