@@ -4,8 +4,12 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20
 
 //Beneficieries (validators) template
 import "../helpers/ValidatorsOperations.sol";
+import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
 contract DAIBridge is ValidatorsOperations {
+
+
+    using BokkyPooBahsDateTimeLibrary for uint;
 
     IERC20 private token;
 
