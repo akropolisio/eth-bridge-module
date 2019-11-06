@@ -7,12 +7,14 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
+import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
 contract ValidatorsOperations {
 
     using SafeMath for uint256;
 
-    using SafeMath for uint8;
+    using BokkyPooBahsDateTimeLibrary for uint;
+
     // VARIABLES
 
     uint256 public validatorsGeneration;
