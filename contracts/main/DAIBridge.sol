@@ -9,154 +9,187 @@ contract DAIBridge is ValidatorsOperations {
 
     IERC20 private token;
 
-    enum Status {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
+    enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
 
-        struct Message {
-            bytes32 messageID;
-            address spender;
-            bytes32 substrateAddress;
-            uint availableAmount;
-            bool isExists; //check message is exists
-            Status status;
-        }
+    enum BridgeStatus {ACTIVE, PAUSED, STOPPED}
 
-        event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-        event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-        event RevertMessage(bytes32 messageID, address sender, uint amount);
-        event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
-        event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
-        event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-        event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    struct Message {
+        bytes32 messageID;
+        address spender;
+        bytes32 substrateAddress;
+        uint availableAmount;
+        bool isExists; //check message is exists
+        TransferStatus status;
+    }
+
+    event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    event RevertMessage(bytes32 messageID, address sender, uint amount);
+    event WithdrawMessage(bytes32 MessageID, address recepient, bytes32 sender, uint amount);
+    event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
+    event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
 
 
-        mapping(bytes32 => Message) messages;
-        mapping(address => Message) messagesBySender;
+    event BridgeStarted();
+    event BridgeStopped();
+    event BridgePaused();
 
-       /**
-       * @notice Constructor.
-       * @param _token  Address of DAI token
-       */
-        constructor (IERC20 _token) public
-            ValidatorsOperations() {
-            token = _token;
-        }  
+    mapping(bytes32 => Message) messages;
+    mapping(address => Message) messagesBySender;
 
-        // MODIFIERS
-        /**
-        * @dev Allows to perform method by existing Validator
-        */
-        modifier onlyExistingValidator(address _Validator) {
-            require(isExistValidator(_Validator), "address is not in Validator array");
-             _;
-        }
+    BridgeStatus bridgeStatus;
 
-        /*
-            check available amount
-        */
-        modifier messageHasAmount(bytes32 messageID) {
-            require((messages[messageID].isExists && messages[messageID].availableAmount > 0), "Amount withdraw");
-            _;
-        }
+    /**
+    * @notice Constructor.
+    * @param _token  Address of DAI token
+    */
+    constructor (IERC20 _token) public
+        ValidatorsOperations() {
+        token = _token;
+    }  
 
-        /*
-            check that message is valid
-        */
-        modifier validMessage(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) {
-            require((messages[messageID].isExists && messages[messageID].spender == spender)
+    // MODIFIERS
+    /**
+     * @dev Allows to perform method by existing Validator
+    */
+    modifier onlyExistingValidator(address _Validator) {
+        require(isExistValidator(_Validator), "address is not in Validator array");
+         _;
+    }
+
+    /*
+        check available amount
+    */
+    modifier messageHasAmount(bytes32 messageID) {
+         require((messages[messageID].isExists && messages[messageID].availableAmount > 0), "Amount withdraw");
+        _;
+    }
+
+    /*
+        check that message is valid
+    */
+    modifier validMessage(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) {
+         require((messages[messageID].isExists && messages[messageID].spender == spender)
                 && (messages[messageID].substrateAddress == substrateAddress)
                 && (messages[messageID].availableAmount == availableAmount), "Data is not valid");
-            _;
-        }
+         _;
+    }
 
-        modifier pendingMessage(bytes32 messageID) {
-            require(messages[messageID].isExists && messages[messageID].status == Status.PENDING, "Message is not pending");
-            _;
-        }
+    modifier pendingMessage(bytes32 messageID) {
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.PENDING, "Message is not pending");
+        _;
+    }
 
-        modifier approvedMessage(bytes32 messageID) {
-            require(messages[messageID].isExists && messages[messageID].status == Status.APPROVED, "Message is not approved");
-            _;
-        }
+    modifier approvedMessage(bytes32 messageID) {
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.APPROVED, "Message is not approved");
+         _;
+    }
 
-        modifier withdrawMessage(bytes32 messageID) {
-            require(messages[messageID].isExists && messages[messageID].status == Status.WITHDRAW, "Message is not approved");
-            _;
-        }
+    modifier withdrawMessage(bytes32 messageID) {
+        require(messages[messageID].isExists && messages[messageID].status == TransferStatus.WITHDRAW, "Message is not approved");
+         _;
+    }
 
-        modifier cancelMessage(bytes32 messageID) {
-            require(messages[messageID].isExists && messages[messageID].status == Status.CANCELED, "Message is not canceled");
-            _;
-        }
+    modifier cancelMessage(bytes32 messageID) {
+         require(messages[messageID].isExists && messages[messageID].status == TransferStatus.CANCELED, "Message is not canceled");
+        _;
+    }
 
-        function setTransfer(uint amount, bytes32 substrateAddress) public {
-            require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
-            token.transferFrom(msg.sender, address(this), amount);
+    modifier activeBridgeStatus() {
+        require(bridgeStatus == BridgeStatus.ACTIVE, "Bridge is stopped or paused");
+        _;
+    }
 
-            bytes32 messageID = keccak256(abi.encodePacked(now));
+    modifier stoppedOrPausedBridgeStatus() {
+        require((bridgeStatus == BridgeStatus.PAUSED || bridgeStatus == BridgeStatus.STOPPED), "Bridge is actived");
+        _;
+    }
 
-            Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, Status.PENDING);
-            messages[messageID] = message;
+    function setTransfer(uint amount, bytes32 substrateAddress) public activeBridgeStatus {
+        require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
+        token.transferFrom(msg.sender, address(this), amount);
 
-            emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
-        }
+        bytes32 messageID = keccak256(abi.encodePacked(now));
 
-        function revertTransfer(bytes32 messageID) public pendingMessage(messageID) onlyManyValidators {
-            Message storage message = messages[messageID];
+        Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
+        messages[messageID] = message;
 
-            message.status = Status.CANCELED;
+         emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
+    }
 
-            token.transfer(msg.sender, message.availableAmount);
+    function revertTransfer(bytes32 messageID) public pendingMessage(messageID) activeBridgeStatus onlyManyValidators {
+        Message storage message = messages[messageID];
+
+        message.status = TransferStatus.CANCELED;
+
+        token.transfer(msg.sender, message.availableAmount);
 
             emit RevertMessage(messageID, msg.sender, message.availableAmount);
-        }
+    }
 
-        /*
-        * Approve finance by message ID when transfer pending
-        */
-        function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount)
-            public validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
-            Message storage message = messages[messageID];
-            message.status = Status.APPROVED;
+    /*
+    * Approve finance by message ID when transfer pending
+    */
+    function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount)
+        public activeBridgeStatus validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
+        Message storage message = messages[messageID];
+        message.status = TransferStatus.APPROVED;
 
-            emit ApprovedRelayMessage(messageID, spender, substrateAddress, availableAmount);
-        }
+        emit ApprovedRelayMessage(messageID, spender, substrateAddress, availableAmount);
+    }
 
-        /*
-        * Confirm tranfer by message ID when transfer pending
-         */
-        function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) onlyManyValidators {
-            Message storage message = messages[messageID];
-            message.status = Status.CONFIRMED;
-            emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
-        }
+    /*
+    * Confirm tranfer by message ID when transfer pending
+    */
+    function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) activeBridgeStatus onlyManyValidators {
+        Message storage message = messages[messageID];
+        message.status = TransferStatus.CONFIRMED;
+        emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+    }
 
-        /*
-        * Withdraw tranfer by message ID after approve from Substrate
-        */
-        function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public onlyManyValidators {
-            require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
-            token.transfer(recipient, availableAmount);
-            Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, Status.WITHDRAW);
-            messages[messageID] = message;
-            emit WithdrawMessage(messageID, recipient, sender, availableAmount);
-        }
+    /*
+    * Withdraw tranfer by message ID after approve from Substrate
+    */
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public activeBridgeStatus onlyManyValidators {
+        require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
+        token.transfer(recipient, availableAmount);
+        Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
+        messages[messageID] = message;
+        emit WithdrawMessage(messageID, recipient, sender, availableAmount);
+    }
 
-        /*
-        * Confirm Withdraw tranfer by message ID after approve from Substrate
-        */
-        function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) onlyManyValidators {
-            Message storage message = messages[messageID];
-            message.status = Status.CONFIRMED_WITHDRAW;
-            emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
-        }
+    /*
+    * Confirm Withdraw tranfer by message ID after approve from Substrate
+    */
+    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) activeBridgeStatus onlyManyValidators {
+        Message storage message = messages[messageID];
+        message.status = TransferStatus.CONFIRMED_WITHDRAW;
+        emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+    }
 
-        /*
-        * Confirm Withdraw cancel by message ID after approve from Substrate
-        */
-         function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) onlyManyValidators {
-            Message storage message = messages[messageID];
-            message.status = Status.CONFIRMED_WITHDRAW;
-            emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
-        }
+    /*
+    * Confirm Withdraw cancel by message ID after approve from Substrate
+    */
+    function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) activeBridgeStatus onlyManyValidators {
+        Message storage message = messages[messageID];
+        message.status = TransferStatus.CONFIRMED_WITHDRAW;
+        emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+    }
 
+    /* Bridge Status Function */
+    function resumeBridge() public stoppedOrPausedBridgeStatus onlyManyValidators {
+        bridgeStatus = BridgeStatus.ACTIVE;
+        emit BridgeStarted();
+    }
+
+    function stopBridge() public onlyManyValidators {
+        bridgeStatus = BridgeStatus.STOPPED;
+        emit BridgeStopped();
+    }
+
+    function pauseBridge() public onlyManyValidators {
+        bridgeStatus = BridgeStatus.PAUSED;
+        emit BridgePaused();
+    }
 }
