@@ -257,14 +257,9 @@ contract ValidatorsOperations {
 
         if (operationVotesCount == 1) {
             allOperationsIndicies[operation] = allOperations.length;
-            
             operationsByValidatorIndex[operation] = uint8(ValidatorIndex);
-            
             operationsCountByValidatorIndex[uint8(ValidatorIndex)] = uint8(operationsCountByValidatorIndex[uint8(ValidatorIndex)].add(1));
-            
-            allOperations.push(operation);
-            
-            
+            allOperations.push(operation);            
             emit OperationCreated(operation, howMany, validators.length, msg.sender);
         }
         emit OperationUpvoted(operation, operationVotesCount, howMany, validators.length, msg.sender);

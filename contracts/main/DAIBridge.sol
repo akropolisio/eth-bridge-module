@@ -20,6 +20,14 @@ contract DAIBridge is ValidatorsOperations {
             Status status;
         }
 
+        struct Limits {
+            uint minTransactionValue;
+            uint maxTransactionValue;
+            uint dayMaxLimit;
+            uint dayMaxLimitForOneAddress;
+            uint maxPendingTransactionLimit;
+        }
+
         event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
         event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
         event RevertMessage(bytes32 messageID, address sender, uint amount);
@@ -31,6 +39,8 @@ contract DAIBridge is ValidatorsOperations {
 
         mapping(bytes32 => Message) messages;
         mapping(address => Message) messagesBySender;
+
+        Limits private limits;
 
        /**
        * @notice Constructor.
@@ -159,4 +169,25 @@ contract DAIBridge is ValidatorsOperations {
             emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
         }
 
+        /* limits getters*/
+        function getMinTransactionValue() public view returns (uint256) {
+            return limits.minTransactionValue;
+        }
+
+        function getMaxTransactionValue() public view returns (uint256) {
+            return limits.maxTransactionValue;
+        }
+
+        function getDayMaxLimit() public view returns (uint256) {
+            return limits.dayMaxLimit;
+        }
+
+        function getDayMaxLimitForOneAddress() public view returns(uint256) {
+            return limits.dayMaxLimitForOneAddress;
+        }
+
+        function getMaxPendingTransactionLimit() public view returns(uint256) {
+            return limits.maxPendingTransactionLimit;
+        }
+       
 }
