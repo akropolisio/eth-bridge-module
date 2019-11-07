@@ -136,13 +136,13 @@ contract DAIBridge is ValidatorsOperations {
         _;
     }
 
-    modifier checkMinMaxTransactionValueProposals(uint value) {
+    modifier checkMinMaxTransactionValue(uint value) {
         require(value < limits.maxTransactionValue && value < limits.minTransactionValue, "Transaction value is too  small or large");
         _;
     }
 
     function setTransfer(uint amount, bytes32 substrateAddress) public 
-        checkMinMaxTransactionValueProposals(amount)
+        checkMinMaxTransactionValue(amount)
         activeBridgeStatus {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
