@@ -49,6 +49,9 @@ contract DAIBridge is ValidatorsOperations {
     event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
     event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    
+    event AccountPausedMessage(address sender, bytes32 recipient);
+    event AccountResumedMessage(address sender, bytes32 recipient);
 
 
     event BridgeStarted();
@@ -78,6 +81,8 @@ contract DAIBridge is ValidatorsOperations {
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
 
     bool pauseBridgeByVolume;
+
+    mapping(address => bool) pauseAccountByVolume;
 
     /**
     * @notice Constructor.
@@ -168,9 +173,17 @@ contract DAIBridge is ValidatorsOperations {
         }
     }
 
-    modifier checkDayVolumeTransactionForAddress(uint value) {
-        require(currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress, "Token transfer for address limit exceeded");
-        _;
+    modifier checkDayVolumeTransactionForAddress(uint value, bytes32 recipient) {
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
+            emit AccountPausedMessage(msg.sender, recipient);
+            pauseAccountByVolume[msg.sender] = true;
+        } else {
+            if (pauseAccountByVolume[msg.sender]) {
+                pauseAccountByVolume[msg.sender] = false;
+                emit AccountResumedMessage(msg.sender, recipient);
+            }
+            _;
+        }
     }
 
     /**  
@@ -180,7 +193,7 @@ contract DAIBridge is ValidatorsOperations {
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkDayVolumeTransaction(amount)
-    checkDayVolumeTransactionForAddress(amount) {
+    checkDayVolumeTransactionForAddress(amount, substrateAddress) {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
         Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
