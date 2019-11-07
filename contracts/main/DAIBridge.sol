@@ -60,10 +60,11 @@ contract DAIBridge is ValidatorsOperations {
     Limits private limits;
   
     mapping(bytes32 => Proposal) minTransactionValueProposals;
+    mapping(bytes32 => Proposal) maxTransactionValueProposals;
     mapping(bytes32 => Proposal) dayMaxLimitProposals;
     mapping(bytes32 => Proposal) dayMaxLimitForOneAddressProposals;
     mapping(bytes32 => Proposal) maxPendingTransactionLimitProposals;
-    
+
     /**
     * @notice Constructor.
     * @param _token  Address of DAI token
@@ -135,7 +136,14 @@ contract DAIBridge is ValidatorsOperations {
         _;
     }
 
-    function setTransfer(uint amount, bytes32 substrateAddress) public activeBridgeStatus {
+    modifier checkMinMaxTransactionValueProposals(uint value) {
+        require(value < limits.maxTransactionValue && value < limits.minTransactionValue, "Transaction value is too  small or large");
+        _;
+    }
+
+    function setTransfer(uint amount, bytes32 substrateAddress) public 
+        checkMinMaxTransactionValueProposals(amount)
+        activeBridgeStatus {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
 
