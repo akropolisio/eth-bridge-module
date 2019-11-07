@@ -8,7 +8,6 @@ import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
 contract DAIBridge is ValidatorsOperations {
 
-
     using BokkyPooBahsDateTimeLibrary for uint;
 
     IERC20 private token;
@@ -59,11 +58,17 @@ contract DAIBridge is ValidatorsOperations {
     BridgeStatus bridgeStatus;
     Limits private limits;
   
+    /** Proposals **/
     mapping(bytes32 => Proposal) minTransactionValueProposals;
     mapping(bytes32 => Proposal) maxTransactionValueProposals;
     mapping(bytes32 => Proposal) dayMaxLimitProposals;
     mapping(bytes32 => Proposal) dayMaxLimitForOneAddressProposals;
     mapping(bytes32 => Proposal) maxPendingTransactionLimitProposals;
+
+    /* volume transactions */
+
+    mapping(bytes32 => uint) currentVolumeByDate;
+    mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
 
     /**
     * @notice Constructor.
@@ -141,21 +146,38 @@ contract DAIBridge is ValidatorsOperations {
         _;
     }
 
-    function setTransfer(uint amount, bytes32 substrateAddress) public 
-        checkMinMaxTransactionValue(amount)
-        activeBridgeStatus {
-        require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
-        token.transferFrom(msg.sender, address(this), amount);
-
-        bytes32 messageID = keccak256(abi.encodePacked(now));
-
-        Message  memory message = Message(messageID, msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
-        messages[messageID] = message;
-
-         emit RelayMessage(messageID, msg.sender, substrateAddress, amount);
+    modifier checkDayVolumeTransaction(uint value) {
+        require(currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit, "Token transfer limit exceeded");
+        _;
     }
 
-    function revertTransfer(bytes32 messageID) public pendingMessage(messageID) activeBridgeStatus onlyManyValidators {
+    modifier checkDayVolumeTransactionForAddress(uint value) {
+       
+        require(currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress, "Token transfer for address limit exceeded");
+        _;
+    }
+
+    /**  
+      Refactor this code 
+    **/
+    function setTransfer(uint amount, bytes32 substrateAddress) public 
+    activeBridgeStatus
+    checkMinMaxTransactionValue(amount)
+    checkDayVolumeTransaction(amount)
+    checkDayVolumeTransactionForAddress(amount) {
+        require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
+        token.transferFrom(msg.sender, address(this), amount);
+        Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
+        messages[keccak256(abi.encodePacked(now))] = message;
+        currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] = currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))].add(amount);
+        currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] = currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender].add(amount);
+        emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount);
+    }
+
+    function revertTransfer(bytes32 messageID) public 
+    activeBridgeStatus
+    pendingMessage(messageID)  
+    onlyManyValidators {
         Message storage message = messages[messageID];
 
         message.status = TransferStatus.CANCELED;
@@ -168,8 +190,11 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Approve finance by message ID when transfer pending
     */
-    function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount)
-        public activeBridgeStatus validMessage(messageID, spender, substrateAddress, availableAmount) pendingMessage(messageID) onlyManyValidators {
+    function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) public 
+    activeBridgeStatus 
+    validMessage(messageID, spender, substrateAddress, availableAmount) 
+    pendingMessage(messageID) 
+    onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
@@ -179,7 +204,10 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm tranfer by message ID when transfer pending
     */
-    function confirmTransfer(bytes32 messageID) public approvedMessage(messageID) activeBridgeStatus onlyManyValidators {
+    function confirmTransfer(bytes32 messageID) public 
+    activeBridgeStatus
+    approvedMessage(messageID)  
+    onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
@@ -188,7 +216,9 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Withdraw tranfer by message ID after approve from Substrate
     */
-    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public activeBridgeStatus onlyManyValidators {
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
+    activeBridgeStatus 
+    onlyManyValidators {
         require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
@@ -199,7 +229,9 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm Withdraw tranfer by message ID after approve from Substrate
     */
-    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) activeBridgeStatus onlyManyValidators {
+    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
+    activeBridgeStatus 
+    onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
@@ -208,24 +240,31 @@ contract DAIBridge is ValidatorsOperations {
     /*
     * Confirm Withdraw cancel by message ID after approve from Substrate
     */
-    function confirmCancelTransfer(bytes32 messageID)  public cancelMessage(messageID) activeBridgeStatus onlyManyValidators {
+    function confirmCancelTransfer(bytes32 messageID)  public 
+    activeBridgeStatus 
+    cancelMessage(messageID)  
+    onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
     /* Bridge Status Function */
-    function resumeBridge() public stoppedOrPausedBridgeStatus onlyManyValidators {
+    function resumeBridge() public 
+    stoppedOrPausedBridgeStatus 
+    onlyManyValidators {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted();
     }
 
-    function stopBridge() public onlyManyValidators {
+    function stopBridge() public 
+    onlyManyValidators {
         bridgeStatus = BridgeStatus.STOPPED;
         emit BridgeStopped();
     }
 
-    function pauseBridge() public onlyManyValidators {
+    function pauseBridge() public 
+    onlyManyValidators {
         bridgeStatus = BridgeStatus.PAUSED;
         emit BridgePaused();
     }
