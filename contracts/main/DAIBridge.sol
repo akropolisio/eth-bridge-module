@@ -34,6 +34,12 @@ contract DAIBridge is ValidatorsOperations {
         uint maxPendingTransactionLimit;
     }
 
+    struct Proposal {
+        bytes32 proposalID;
+        uint value;
+        uint timestamp;
+    }
+
     event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event RevertMessage(bytes32 messageID, address sender, uint amount);
@@ -52,7 +58,12 @@ contract DAIBridge is ValidatorsOperations {
 
     BridgeStatus bridgeStatus;
     Limits private limits;
-
+  
+    mapping(bytes32 => Proposal) minTransactionValueProposals;
+    mapping(bytes32 => Proposal) dayMaxLimitProposals;
+    mapping(bytes32 => Proposal) dayMaxLimitForOneAddressProposals;
+    mapping(bytes32 => Proposal) maxPendingTransactionLimitProposals;
+    
     /**
     * @notice Constructor.
     * @param _token  Address of DAI token
