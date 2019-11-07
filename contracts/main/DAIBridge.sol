@@ -16,6 +16,8 @@ contract DAIBridge is ValidatorsOperations {
 
     enum BridgeStatus {ACTIVE, PAUSED, STOPPED}
 
+    enum ProposalStatus {PENDING, APPROVED, DECLINED}
+
     struct Message {
         bytes32 messageID;
         address spender;
@@ -37,6 +39,7 @@ contract DAIBridge is ValidatorsOperations {
         bytes32 proposalID;
         uint value;
         uint timestamp;
+
     }
 
     event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
@@ -51,6 +54,10 @@ contract DAIBridge is ValidatorsOperations {
     event BridgeStarted();
     event BridgeStopped();
     event BridgePaused();
+
+
+    event BridgePausedByVolume();
+    event BridgeStartedByVolume();
 
     mapping(bytes32 => Message) messages;
     mapping(address => Message) messagesBySender;
@@ -69,6 +76,8 @@ contract DAIBridge is ValidatorsOperations {
 
     mapping(bytes32 => uint) currentVolumeByDate;
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
+
+    bool pauseBridgeByVolume;
 
     /**
     * @notice Constructor.
@@ -147,12 +156,19 @@ contract DAIBridge is ValidatorsOperations {
     }
 
     modifier checkDayVolumeTransaction(uint value) {
-        require(currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit, "Token transfer limit exceeded");
-        _;
+        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit) {
+            _pauseBridge();
+            pauseBridgeByVolume = true;
+        } else {
+            if (pauseBridgeByVolume) {
+                pauseBridgeByVolume = false;
+                _resumeBridge();
+            }
+            _;
+        }
     }
 
     modifier checkDayVolumeTransactionForAddress(uint value) {
-       
         require(currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress, "Token transfer for address limit exceeded");
         _;
     }
@@ -269,7 +285,7 @@ contract DAIBridge is ValidatorsOperations {
         emit BridgePaused();
     }
 
-        /* limits getters*/
+    /* limits getters*/
     function getMinTransactionValue() public view returns (uint256) {
         return limits.minTransactionValue;
     }
@@ -288,5 +304,15 @@ contract DAIBridge is ValidatorsOperations {
 
     function getMaxPendingTransactionLimit() public view returns(uint256) {
         return limits.maxPendingTransactionLimit;
+    }
+
+    function _pauseBridge() internal {
+        bridgeStatus = BridgeStatus.PAUSED;
+        emit BridgePausedByVolume();
+    }
+
+    function _resumeBridge() internal {
+        bridgeStatus = BridgeStatus.ACTIVE;
+        emit BridgeStartedByVolume();
     }
 }
