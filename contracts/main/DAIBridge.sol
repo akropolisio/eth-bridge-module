@@ -334,11 +334,11 @@ contract DAIBridge is ValidatorsOperations {
 
     function _pauseBridge() internal {
         bridgeStatus = BridgeStatus.PAUSED;
-        emit BridgePausedByVolume(keccak256(abi.encodePacked(now));
+        emit BridgePausedByVolume(keccak256(abi.encodePacked(now)));
     }
 
     function _resumeBridge() internal {
         bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeStartedByVolume(keccak256(abi.encodePacked(now));
+        emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
     }
 }

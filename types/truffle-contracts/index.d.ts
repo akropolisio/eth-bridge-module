@@ -763,6 +763,15 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  startBridge: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   resumeBridge: {
     (txDetails?: Truffle.TransactionDetails): Promise<
       Truffle.TransactionResponse
