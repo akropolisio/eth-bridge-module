@@ -60,8 +60,8 @@ contract DAIBridge is ValidatorsOperations {
     event BridgePaused();
 
 
-    event BridgePausedByVolume();
-    event BridgeStartedByVolume();
+    event BridgePausedByVolume(bytes32 messageID);
+    event BridgeStartedByVolume(bytes32 messageID);
 
     mapping(bytes32 => Message) messages;
     mapping(address => Message) messagesBySender;
@@ -334,11 +334,11 @@ contract DAIBridge is ValidatorsOperations {
 
     function _pauseBridge() internal {
         bridgeStatus = BridgeStatus.PAUSED;
-        emit BridgePausedByVolume();
+        emit BridgePausedByVolume(keccak256(abi.encodePacked(now));
     }
 
     function _resumeBridge() internal {
         bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeStartedByVolume();
+        emit BridgeStartedByVolume(keccak256(abi.encodePacked(now));
     }
 }
