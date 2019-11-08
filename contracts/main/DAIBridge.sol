@@ -56,6 +56,7 @@ contract DAIBridge is ValidatorsOperations {
 
     event BridgeStarted();
     event BridgeStopped();
+    event BridgeResumed();
     event BridgePaused();
 
 
@@ -160,8 +161,12 @@ contract DAIBridge is ValidatorsOperations {
         _;
     }
 
+   /*
+    сделать закрываюшую объем транзакцию и fail в случае превышения объема
+   */
     modifier checkDayVolumeTransaction(uint value) {
         if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit) {
+            _;
             _pauseBridge();
             pauseBridgeByVolume = true;
         } else {
@@ -175,6 +180,7 @@ contract DAIBridge is ValidatorsOperations {
 
     modifier checkDayVolumeTransactionForAddress(uint value, bytes32 recipient) {
         if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
+             _;
             emit AccountPausedMessage(msg.sender, recipient);
             pauseAccountByVolume[msg.sender] = true;
         } else {
@@ -279,11 +285,18 @@ contract DAIBridge is ValidatorsOperations {
     }
 
     /* Bridge Status Function */
-    function resumeBridge() public 
+    function startBridge() public 
     stoppedOrPausedBridgeStatus 
     onlyManyValidators {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted();
+    }
+
+    function resumeBridge() public 
+    stoppedOrPausedBridgeStatus 
+    onlyManyValidators {
+        bridgeStatus = BridgeStatus.ACTIVE;
+        emit BridgeResumed();
     }
 
     function stopBridge() public 
