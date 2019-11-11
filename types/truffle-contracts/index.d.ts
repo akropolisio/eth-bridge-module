@@ -595,42 +595,12 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
   ): Promise<BigNumber>;
 
   initialize: {
-    (
-      _token: string | BigNumber,
-      _minTransactionValue: number | BigNumber | string,
-      _maxTransactionValue: number | BigNumber | string,
-      _dayMaxLimit: number | BigNumber | string,
-      _dayMaxLimitForOneAddress: number | BigNumber | string,
-      _maxPendingTransactionLimit: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      _token: string | BigNumber,
-      _minTransactionValue: number | BigNumber | string,
-      _maxTransactionValue: number | BigNumber | string,
-      _dayMaxLimit: number | BigNumber | string,
-      _dayMaxLimitForOneAddress: number | BigNumber | string,
-      _maxPendingTransactionLimit: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      _token: string | BigNumber,
-      _minTransactionValue: number | BigNumber | string,
-      _maxTransactionValue: number | BigNumber | string,
-      _dayMaxLimit: number | BigNumber | string,
-      _dayMaxLimitForOneAddress: number | BigNumber | string,
-      _maxPendingTransactionLimit: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      _token: string | BigNumber,
-      _minTransactionValue: number | BigNumber | string,
-      _maxTransactionValue: number | BigNumber | string,
-      _dayMaxLimit: number | BigNumber | string,
-      _dayMaxLimitForOneAddress: number | BigNumber | string,
-      _maxPendingTransactionLimit: number | BigNumber | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
   };
 
   setTransfer: {
@@ -830,23 +800,41 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
   };
 
-  getMinTransactionValue(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+  setPausedStatusForGuestAddress: {
+    (
+      sender: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      sender: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      sender: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      sender: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
 
-  getMaxTransactionValue(
+  getLimits(
     txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  getDayMaxLimit(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
-
-  getDayMaxLimitForOneAddress(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
-
-  getMaxPendingTransactionLimit(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<BigNumber>;
+  ): Promise<
+    [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ]
+  >;
 }
 
 export interface IERC20Instance extends Truffle.ContractInstance {

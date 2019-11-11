@@ -29,11 +29,18 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     }
 
     struct Limits {
-        uint minTransactionValue;
-        uint maxTransactionValue;
-        uint dayMaxLimit;
-        uint dayMaxLimitForOneAddress;
-        uint maxPendingTransactionLimit;
+        //ETH Limits
+        uint minHostTransactionValue;
+        uint maxHostTransactionValue;
+        uint dayHostMaxLimit;
+        uint dayHostMaxLimitForOneAddress;
+        uint maxHostPendingTransactionLimit;
+        //ETH Limits
+        uint minGuestTransactionValue;
+        uint maxGuestTransactionValue;
+        uint dayGuestMaxLimit;
+        uint dayGuestMaxLimitForOneAddress;
+        uint maxGuestPendingTransactionLimit;
     }
 
     struct Proposal {
@@ -51,9 +58,13 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     
-    event AccountPausedMessage(address sender, bytes32 recipient);
-    event AccountResumedMessage(address sender, bytes32 recipient);
+    //ETH Account
+    event HostAccountPausedMessage(bytes32 messageID, address sender, uint timestamp);
+    event HostAccountResumedMessage(bytes32 messageID, address sender, uint timestamp);
 
+    //Substrate
+    event GuestAccountPausedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
+    event GuestAccountResumedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
 
     event BridgeStarted();
     event BridgeStopped();
@@ -90,15 +101,21 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     * @notice Constructor.
     * @param _token  Address of DAI token
     */
-    function initialize(IERC20 _token, uint _minTransactionValue, uint _maxTransactionValue, uint _dayMaxLimit, uint _dayMaxLimitForOneAddress, uint _maxPendingTransactionLimit) public 
+    function initialize(IERC20 _token) public 
     initializer {
         ValidatorsOperations.initialize();
         token = _token;
-        limits.minTransactionValue = _minTransactionValue;
-        limits.maxTransactionValue = _maxTransactionValue;
-        limits.dayMaxLimit = _dayMaxLimit;
-        limits.dayMaxLimitForOneAddress = _dayMaxLimitForOneAddress;
-        limits.maxTransactionValue = _maxPendingTransactionLimit;
+        limits.minHostTransactionValue = 10*10**18;
+        limits.maxHostTransactionValue = 100*10**18;
+        limits.dayHostMaxLimit = 200*10**18;
+        limits.dayHostMaxLimitForOneAddress = 50*10**18;
+        limits.maxHostPendingTransactionLimit = 400*10**18;
+
+        limits.minGuestTransactionValue = 10*10**18;
+        limits.maxGuestTransactionValue = 100*10**18;
+        limits.dayGuestMaxLimit = 200*10**18;
+        limits.dayGuestMaxLimitForOneAddress = 50*10**18;
+        limits.maxGuestPendingTransactionLimit = 400*10**18;
     } 
 
     // MODIFIERS
@@ -159,7 +176,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     }
 
     modifier checkMinMaxTransactionValue(uint value) {
-        require(value < limits.maxTransactionValue && value < limits.minTransactionValue, "Transaction value is too  small or large");
+        require(value < limits.maxHostTransactionValue && value < limits.minHostTransactionValue, "Transaction value is too  small or large");
         _;
     }
 
@@ -167,7 +184,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     сделать закрываюшую объем транзакцию и fail в случае превышения объема
    */
     modifier checkDayVolumeTransaction() {
-        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit) {
+        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayHostMaxLimit) {
             _;
             _pauseBridge();
             pauseBridgeByVolume = true;
@@ -180,32 +197,15 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         }
     }
 
-    modifier checkDayVolumeTransactionForAddress(bytes32 recipient) {
-        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
+    modifier checkDayVolumeTransactionForAddress() {
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayHostMaxLimitForOneAddress) {
              _;
-            emit AccountPausedMessage(msg.sender, recipient);
+            emit HostAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
             pauseAccountByVolume[msg.sender] = true;
         } else {
             if (pauseAccountByVolume[msg.sender]) {
                 pauseAccountByVolume[msg.sender] = false;
-                emit AccountResumedMessage(msg.sender, recipient);
-            }
-            _;
-        }
-    }
-
-    modifier checkDayVolumeTransactionForAddressByMessageID(bytes32 messageID) {
-         
-        Message storage message = messages[messageID];
-
-        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
-             _;
-            emit AccountPausedMessage(msg.sender, message.substrateAddress);
-            pauseAccountByVolume[msg.sender] = true;
-        } else {
-            if (pauseAccountByVolume[msg.sender]) {
-                pauseAccountByVolume[msg.sender] = false;
-                emit AccountResumedMessage(msg.sender, message.substrateAddress);
+                emit HostAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
             }
             _;
         }
@@ -218,7 +218,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkDayVolumeTransaction()
-    checkDayVolumeTransactionForAddress(substrateAddress) {
+    checkDayVolumeTransactionForAddress() {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
         Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
@@ -261,11 +261,10 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     activeBridgeStatus
     approvedMessage(messageID)  
     checkDayVolumeTransaction()
-    checkDayVolumeTransactionForAddressByMessageID(messageID)
+    checkDayVolumeTransactionForAddress()
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
-        _addVolumeByMessageID(messageID);
         emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -288,11 +287,10 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
     checkDayVolumeTransaction()
-    checkDayVolumeTransactionForAddressByMessageID(messageID)
+    checkDayVolumeTransactionForAddress()
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
-        _addVolumeByMessageID(messageID);
         emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -336,25 +334,36 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         emit BridgePaused();
     }
 
-    /* limits getters*/
-    function getMinTransactionValue() public view returns (uint256) {
-        return limits.minTransactionValue;
+    function setPausedStatusForGuestAddress(bytes32 sender) 
+    onlyManyValidators
+    public {
+       emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
     }
 
-    function getMaxTransactionValue() public view returns (uint256) {
-        return limits.maxTransactionValue;
+    function setResumedStatusForGuestAddress(bytes32 sender) 
+    onlyManyValidators
+    public {
+       emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
     }
 
-    function getDayMaxLimit() public view returns (uint256) {
-        return limits.dayMaxLimit;
-    }
 
-    function getDayMaxLimitForOneAddress() public view returns(uint256) {
-        return limits.dayMaxLimitForOneAddress;
-    }
 
-    function getMaxPendingTransactionLimit() public view returns(uint256) {
-        return limits.maxPendingTransactionLimit;
+    /*limit getter */
+    function getLimits() public view returns 
+    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
+        return (
+          limits.minHostTransactionValue,
+          limits.maxHostTransactionValue,
+          limits.dayHostMaxLimit,
+          limits.dayHostMaxLimitForOneAddress,
+          limits.maxHostPendingTransactionLimit,
+        //ETH Limits
+          limits.minGuestTransactionValue,
+          limits.maxGuestTransactionValue,
+          limits.dayGuestMaxLimit,
+          limits.dayGuestMaxLimitForOneAddress,
+          limits.maxGuestPendingTransactionLimit
+        );
     }
 
     function _pauseBridge() internal {
@@ -374,4 +383,6 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
         currentDayVolumeForAddress[dateID][message.spender] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
     }
+
+   
 }
