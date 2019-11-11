@@ -1,12 +1,13 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 //Beneficieries (validators) template
 import "../helpers/ValidatorsOperations.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
-contract DAIBridge is ValidatorsOperations {
+contract DAIBridge is Initializable, ValidatorsOperations {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -89,7 +90,7 @@ contract DAIBridge is ValidatorsOperations {
     * @notice Constructor.
     * @param _token  Address of DAI token
     */
-    constructor (IERC20 _token, uint _minTransactionValue, uint _maxTransactionValue, uint _dayMaxLimit, uint _dayMaxLimitForOneAddress, uint _maxPendingTransactionLimit) public
+    /*constructor (IERC20 _token, uint _minTransactionValue, uint _maxTransactionValue, uint _dayMaxLimit, uint _dayMaxLimitForOneAddress, uint _maxPendingTransactionLimit) public
         ValidatorsOperations() {
         token = _token;
         limits.minTransactionValue = _minTransactionValue;
@@ -97,7 +98,17 @@ contract DAIBridge is ValidatorsOperations {
         limits.dayMaxLimit = _dayMaxLimit;
         limits.dayMaxLimitForOneAddress = _dayMaxLimitForOneAddress;
         limits.maxTransactionValue = _maxPendingTransactionLimit;
-    }  
+    }*/
+    function initialize(IERC20 _token, uint _minTransactionValue, uint _maxTransactionValue, uint _dayMaxLimit, uint _dayMaxLimitForOneAddress, uint _maxPendingTransactionLimit) public 
+    initializer {
+        ValidatorsOperations.initialize();
+        token = _token;
+        limits.minTransactionValue = _minTransactionValue;
+        limits.maxTransactionValue = _maxTransactionValue;
+        limits.dayMaxLimit = _dayMaxLimit;
+        limits.dayMaxLimitForOneAddress = _dayMaxLimitForOneAddress;
+        limits.maxTransactionValue = _maxPendingTransactionLimit;
+    } 
 
     // MODIFIERS
     /**
@@ -218,7 +229,7 @@ contract DAIBridge is ValidatorsOperations {
 
         token.transfer(msg.sender, message.availableAmount);
 
-            emit RevertMessage(messageID, msg.sender, message.availableAmount);
+        emit RevertMessage(messageID, msg.sender, message.availableAmount);
     }
 
     /*

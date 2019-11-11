@@ -7,8 +7,8 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/math/SafeMath.sol";
-
-contract ValidatorsOperations {
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+contract ValidatorsOperations is Initializable {
 
     using SafeMath for uint256;
 
@@ -45,7 +45,7 @@ contract ValidatorsOperations {
     event OperationCancelled(bytes32 operation, address lastCanceller);
     
     // CONSTRUCTOR
-    constructor() public {
+    function initialize() public initializer {
         validators.push(msg.sender);
         validatorsIndices[msg.sender] = 1;
         howManyValidatorsDecide = 1;
