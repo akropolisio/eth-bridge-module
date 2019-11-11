@@ -166,7 +166,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
    /*
     сделать закрываюшую объем транзакцию и fail в случае превышения объема
    */
-    modifier checkDayVolumeTransaction(uint value) {
+    modifier checkDayVolumeTransaction() {
         if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayMaxLimit) {
             _;
             _pauseBridge();
@@ -180,7 +180,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         }
     }
 
-    modifier checkDayVolumeTransactionForAddress(uint value, bytes32 recipient) {
+    modifier checkDayVolumeTransactionForAddress(bytes32 recipient) {
         if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
              _;
             emit AccountPausedMessage(msg.sender, recipient);
@@ -194,14 +194,31 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         }
     }
 
+    modifier checkDayVolumeTransactionForAddressByMessageID(bytes32 messageID) {
+         
+        Message storage message = messages[messageID];
+
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayMaxLimitForOneAddress) {
+             _;
+            emit AccountPausedMessage(msg.sender, message.substrateAddress);
+            pauseAccountByVolume[msg.sender] = true;
+        } else {
+            if (pauseAccountByVolume[msg.sender]) {
+                pauseAccountByVolume[msg.sender] = false;
+                emit AccountResumedMessage(msg.sender, message.substrateAddress);
+            }
+            _;
+        }
+    }
+
     /**  
       Refactor this code 
     **/
     function setTransfer(uint amount, bytes32 substrateAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
-    checkDayVolumeTransaction(amount)
-    checkDayVolumeTransactionForAddress(amount, substrateAddress) {
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddress(substrateAddress) {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
         Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
@@ -243,6 +260,8 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     function confirmTransfer(bytes32 messageID) public 
     activeBridgeStatus
     approvedMessage(messageID)  
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddressByMessageID(messageID)
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
@@ -254,7 +273,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     * Withdraw tranfer by message ID after approve from Substrate
     */
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
-    activeBridgeStatus 
+    activeBridgeStatus
     onlyManyValidators {
         require(token.balanceOf(address(this)) >= availableAmount, "Balance is not enough");
         token.transfer(recipient, availableAmount);
@@ -268,6 +287,8 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     */
     function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddressByMessageID(messageID)
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
