@@ -346,8 +346,6 @@ contract DAIBridge is Initializable, ValidatorsOperations {
        emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
     }
 
-
-
     /*limit getter */
     function getLimits() public view returns 
     (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
