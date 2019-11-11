@@ -22,7 +22,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     struct Message {
         bytes32 messageID;
         address spender;
-        bytes32 substrateAddress;
+        bytes32 guestAddress;
         uint availableAmount;
         bool isExists; //check message is exists
         TransferStatus status;
@@ -62,7 +62,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     event HostAccountPausedMessage(bytes32 messageID, address sender, uint timestamp);
     event HostAccountResumedMessage(bytes32 messageID, address sender, uint timestamp);
 
-    //Substrate
+    //guest
     event GuestAccountPausedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
     event GuestAccountResumedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
 
@@ -138,9 +138,9 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     /*
         check that message is valid
     */
-    modifier validMessage(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) {
+    modifier validMessage(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) {
          require((messages[messageID].isExists && messages[messageID].spender == spender)
-                && (messages[messageID].substrateAddress == substrateAddress)
+                && (messages[messageID].guestAddress == guestAddress)
                 && (messages[messageID].availableAmount == availableAmount), "Data is not valid");
          _;
     }
@@ -214,17 +214,17 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     /**  
       Refactor this code 
     **/
-    function setTransfer(uint amount, bytes32 substrateAddress) public 
+    function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress() {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
-        Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
+        Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
 
-        emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount);
+        emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
     }
 
     function revertTransfer(bytes32 messageID) public 
@@ -243,15 +243,15 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     /*
     * Approve finance by message ID when transfer pending
     */
-    function approveTransfer(bytes32 messageID, address spender, bytes32 substrateAddress, uint availableAmount) public 
+    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
     activeBridgeStatus 
-    validMessage(messageID, spender, substrateAddress, availableAmount) 
+    validMessage(messageID, spender, guestAddress, availableAmount) 
     pendingMessage(messageID) 
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
-        emit ApprovedRelayMessage(messageID, spender, substrateAddress, availableAmount);
+        emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount);
     }
 
     /*
@@ -265,11 +265,11 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
-        emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+        emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
     /*
-    * Withdraw tranfer by message ID after approve from Substrate
+    * Withdraw tranfer by message ID after approve from guest
     */
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
     activeBridgeStatus
@@ -282,7 +282,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     }
 
     /*
-    * Confirm Withdraw tranfer by message ID after approve from Substrate
+    * Confirm Withdraw tranfer by message ID after approve from guest
     */
     function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
@@ -291,11 +291,11 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
-        emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+        emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
     /*
-    * Confirm Withdraw cancel by message ID after approve from Substrate
+    * Confirm Withdraw cancel by message ID after approve from guest
     */
     function confirmCancelTransfer(bytes32 messageID)  public 
     activeBridgeStatus 
@@ -304,7 +304,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
-        emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
+        emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
     /* Bridge Status Function */
