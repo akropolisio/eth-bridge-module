@@ -22,15 +22,7 @@ export interface Counter_V1Contract
 }
 
 export interface DAIBridgeContract extends Truffle.Contract<DAIBridgeInstance> {
-  "new"(
-    _token: string | BigNumber,
-    _minTransactionValue: number | BigNumber | string,
-    _maxTransactionValue: number | BigNumber | string,
-    _dayMaxLimit: number | BigNumber | string,
-    _dayMaxLimitForOneAddress: number | BigNumber | string,
-    _maxPendingTransactionLimit: number | BigNumber | string,
-    meta?: Truffle.TransactionDetails
-  ): Promise<DAIBridgeInstance>;
+  "new"(meta?: Truffle.TransactionDetails): Promise<DAIBridgeInstance>;
 }
 
 export interface IERC20Contract extends Truffle.Contract<IERC20Instance> {
@@ -601,6 +593,45 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
+
+  initialize: {
+    (
+      _token: string | BigNumber,
+      _minTransactionValue: number | BigNumber | string,
+      _maxTransactionValue: number | BigNumber | string,
+      _dayMaxLimit: number | BigNumber | string,
+      _dayMaxLimitForOneAddress: number | BigNumber | string,
+      _maxPendingTransactionLimit: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      _token: string | BigNumber,
+      _minTransactionValue: number | BigNumber | string,
+      _maxTransactionValue: number | BigNumber | string,
+      _dayMaxLimit: number | BigNumber | string,
+      _dayMaxLimitForOneAddress: number | BigNumber | string,
+      _maxPendingTransactionLimit: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      _token: string | BigNumber,
+      _minTransactionValue: number | BigNumber | string,
+      _maxTransactionValue: number | BigNumber | string,
+      _dayMaxLimit: number | BigNumber | string,
+      _dayMaxLimitForOneAddress: number | BigNumber | string,
+      _maxPendingTransactionLimit: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      _token: string | BigNumber,
+      _minTransactionValue: number | BigNumber | string,
+      _maxTransactionValue: number | BigNumber | string,
+      _dayMaxLimit: number | BigNumber | string,
+      _dayMaxLimitForOneAddress: number | BigNumber | string,
+      _maxPendingTransactionLimit: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
 
   setTransfer: {
     (
@@ -2028,6 +2059,15 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
 
+  initialize: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   cancelPending: {
     (
       operation: string | BigNumber,
@@ -2232,6 +2272,15 @@ export interface ValidatorsOperationsMockInstance
     arg0: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
+
+  initialize: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
 
   setValue: {
     (

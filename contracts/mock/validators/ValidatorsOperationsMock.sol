@@ -1,11 +1,16 @@
 pragma solidity ^0.5.0;
 
 import "../../helpers/ValidatorsOperations.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-
-contract ValidatorsOperationsMock is ValidatorsOperations {
+contract ValidatorsOperationsMock is Initializable, ValidatorsOperations {
 
     uint public value;
+
+    // CONSTRUCTOR
+    function initialize() public initializer {
+        ValidatorsOperations.initialize();
+    }
 
     function setValue(uint _value) public onlyManyValidators {
         value = _value;
