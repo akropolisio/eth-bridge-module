@@ -12,7 +12,7 @@ contract DAIBridge is ValidatorsOperations {
 
     IERC20 private token;
 
-    enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMATION}
+    enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
 
     enum BridgeStatus {ACTIVE, PAUSED, STOPPED}
 
@@ -204,8 +204,7 @@ contract DAIBridge is ValidatorsOperations {
         token.transferFrom(msg.sender, address(this), amount);
         Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
-        currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] = currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))].add(amount);
-        currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] = currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender].add(amount);
+
         emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, substrateAddress, amount);
     }
 
@@ -245,6 +244,7 @@ contract DAIBridge is ValidatorsOperations {
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
+        _addVolumeByMessageID(messageID);
         emit ConfirmMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -269,6 +269,7 @@ contract DAIBridge is ValidatorsOperations {
     onlyManyValidators {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
+        _addVolumeByMessageID(messageID);
         emit ConfirmWithdrawMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -280,7 +281,8 @@ contract DAIBridge is ValidatorsOperations {
     cancelMessage(messageID)  
     onlyManyValidators {
         Message storage message = messages[messageID];
-        message.status = TransferStatus.CONFIRMED_WITHDRAW;
+        message.status = TransferStatus.CANCELED_CONFIRMED;
+
         emit ConfirmCancelMessage(messageID, message.spender, message.substrateAddress, message.availableAmount);
     }
 
@@ -340,5 +342,13 @@ contract DAIBridge is ValidatorsOperations {
     function _resumeBridge() internal {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
+    }
+
+    function _addVolumeByMessageID(bytes32 messageID) internal {
+        Message storage message = messages[messageID];
+        message.status = TransferStatus.CONFIRMED;
+        bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
+        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
+        currentDayVolumeForAddress[dateID][message.spender] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
     }
 }
