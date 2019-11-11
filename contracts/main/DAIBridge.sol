@@ -91,10 +91,13 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     /* volume transactions */
 
     mapping(bytes32 => uint) currentVolumeByDate;
+
+    /* pending volume */
+    mapping(bytes32 => uint) currentVPendingVolume;
+    
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
-
     bool pauseBridgeByVolume;
-
+   
     mapping(address => bool) pauseAccountByVolume;
 
     /**
@@ -116,6 +119,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         limits.dayGuestMaxLimit = 200*10**18;
         limits.dayGuestMaxLimitForOneAddress = 50*10**18;
         limits.maxGuestPendingTransactionLimit = 400*10**18;
+       
     } 
 
     // MODIFIERS
