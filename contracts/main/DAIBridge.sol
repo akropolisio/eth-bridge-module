@@ -93,8 +93,8 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     mapping(bytes32 => uint) currentVolumeByDate;
 
     /* pending volume */
-    mapping(bytes32 => uint) currentVPendingVolume;
-    
+    mapping(bytes32 => uint) currentVPendingVolumeByDate;
+
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
     bool pauseBridgeByVolume;
    
@@ -201,6 +201,20 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         }
     }
 
+    modifier checkPendingDayVolumeTransaction() {
+        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.maxGuestPendingTransactionLimit) {
+            _;
+            _pauseBridge();
+            pauseBridgeByVolume = true;
+        } else {
+            if (pauseBridgeByVolume) {
+                pauseBridgeByVolume = false;
+                _resumeBridge();
+            }
+            _;
+        }
+    }
+
     modifier checkDayVolumeTransactionForAddress() {
         if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayHostMaxLimitForOneAddress) {
              _;
@@ -221,6 +235,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
+    checkPendingDayVolumeTransaction()
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress() {
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
