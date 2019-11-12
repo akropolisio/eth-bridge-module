@@ -8,8 +8,10 @@ import * as TruffleContracts from ".";
 declare global {
   namespace Truffle {
     interface Artifacts {
+      require(name: "Bridge"): TruffleContracts.BridgeContract;
       require(name: "DAIBridge"): TruffleContracts.DAIBridgeContract;
       require(name: "IERC20"): TruffleContracts.IERC20Contract;
+      require(name: "Status"): TruffleContracts.StatusContract;
       require(name: "TestDateTime"): TruffleContracts.TestDateTimeContract;
       require(
         name: "ValidatorsOperations"

@@ -6,19 +6,26 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 //Beneficieries (validators) template
 import "../helpers/ValidatorsOperations.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
+import "../bridge/Status.sol";
 
-contract DAIBridge is Initializable, ValidatorsOperations {
+contract Bridge is Initializable, ValidatorsOperations, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
     IERC20 private token;
 
+
+    /*
+    * Statuses
+    */
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
 
-    enum BridgeStatus {ACTIVE, PAUSED, STOPPED}
 
     enum ProposalStatus {PENDING, APPROVED, DECLINED}
 
+    /*
+      Struct
+    */
     struct Message {
         bytes32 messageID;
         address spender;
@@ -47,9 +54,12 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         bytes32 proposalID;
         uint value;
         uint timestamp;
-
+        bool isExists;
     }
 
+    /*
+    *    Events
+    */
     event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event RevertMessage(bytes32 messageID, address sender, uint amount);
@@ -58,27 +68,14 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
     
-    //ETH Account
-    event HostAccountPausedMessage(bytes32 messageID, address sender, uint timestamp);
-    event HostAccountResumedMessage(bytes32 messageID, address sender, uint timestamp);
-
-    //guest
-    event GuestAccountPausedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
-    event GuestAccountResumedMessage(bytes32 messageID, bytes32 recipient, uint timestamp);
-
-    event BridgeStarted();
-    event BridgeStopped();
-    event BridgeResumed();
-    event BridgePaused();
-
-
-    event BridgePausedByVolume(bytes32 messageID);
-    event BridgeStartedByVolume(bytes32 messageID);
-
+    
+    /*
+       * Messages
+    */
     mapping(bytes32 => Message) messages;
     mapping(address => Message) messagesBySender;
 
-    BridgeStatus bridgeStatus;
+   
     Limits private limits;
   
     /** Proposals **/
@@ -96,10 +93,7 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     mapping(bytes32 => uint) currentVPendingVolumeByDate;
 
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
-    bool pauseBridgeByVolume;
-   
-    mapping(address => bool) pauseAccountByVolume;
-
+    
     /**
     * @notice Constructor.
     * @param _token  Address of DAI token
@@ -169,33 +163,18 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         _;
     }
 
-    modifier activeBridgeStatus() {
-        require(bridgeStatus == BridgeStatus.ACTIVE, "Bridge is stopped or paused");
-        _;
-    }
-
-    modifier stoppedOrPausedBridgeStatus() {
-        require((bridgeStatus == BridgeStatus.PAUSED || bridgeStatus == BridgeStatus.STOPPED), "Bridge is actived");
-        _;
-    }
-
     modifier checkMinMaxTransactionValue(uint value) {
         require(value < limits.maxHostTransactionValue && value < limits.minHostTransactionValue, "Transaction value is too  small or large");
         _;
     }
 
-   /*
-    сделать закрываюшую объем транзакцию и fail в случае превышения объема
-   */
     modifier checkDayVolumeTransaction() {
         if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayHostMaxLimit) {
             _;
-            _pauseBridge();
-            pauseBridgeByVolume = true;
+            _pauseBridgeByVolume();
         } else {
             if (pauseBridgeByVolume) {
-                pauseBridgeByVolume = false;
-                _resumeBridge();
+                _resumeBridgeByVolume();
             }
             _;
         }
@@ -204,12 +183,10 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     modifier checkPendingDayVolumeTransaction() {
         if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.maxGuestPendingTransactionLimit) {
             _;
-            _pauseBridge();
-            pauseBridgeByVolume = true;
+            _pauseBridgeByVolume();
         } else {
             if (pauseBridgeByVolume) {
-                pauseBridgeByVolume = false;
-                _resumeBridge();
+                _resumeBridgeByVolume();
             }
             _;
         }
@@ -218,26 +195,25 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     modifier checkDayVolumeTransactionForAddress() {
         if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayHostMaxLimitForOneAddress) {
              _;
-            emit HostAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
-            pauseAccountByVolume[msg.sender] = true;
+             _pausedByBridgeVolumeForAddress(msg.sender);
         } else {
             if (pauseAccountByVolume[msg.sender]) {
-                pauseAccountByVolume[msg.sender] = false;
-                emit HostAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
+                _resumedByBridgeVolumeForAddress(msg.sender);
             }
             _;
         }
     }
 
-    /**  
-      Refactor this code 
-    **/
+    /*
+        public functions
+    */
     function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkPendingDayVolumeTransaction()
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress() {
+        /** to modifier **/
         require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
         token.transferFrom(msg.sender, address(this), amount);
         Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
@@ -246,6 +222,9 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
     }
 
+    /*
+        revert function
+    */
     function revertTransfer(bytes32 messageID) public 
     activeBridgeStatus
     pendingMessage(messageID)  
@@ -330,39 +309,35 @@ contract DAIBridge is Initializable, ValidatorsOperations {
     function startBridge() public 
     stoppedOrPausedBridgeStatus 
     onlyManyValidators {
-        bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeStarted();
+        _startBridge();
     }
 
     function resumeBridge() public 
     stoppedOrPausedBridgeStatus 
     onlyManyValidators {
-        bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeResumed();
+        _resumeBridge();
     }
 
     function stopBridge() public 
     onlyManyValidators {
-        bridgeStatus = BridgeStatus.STOPPED;
-        emit BridgeStopped();
+        _stopBridge();
     }
 
     function pauseBridge() public 
     onlyManyValidators {
-        bridgeStatus = BridgeStatus.PAUSED;
-        emit BridgePaused();
+        _pauseBridge();
     }
 
     function setPausedStatusForGuestAddress(bytes32 sender) 
     onlyManyValidators
     public {
-       emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
+       _setPausedStatusForGuestAddress(sender);
     }
 
     function setResumedStatusForGuestAddress(bytes32 sender) 
     onlyManyValidators
     public {
-       emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
+       _setResumedStatusForGuestAddress(sender);
     }
 
     /*limit getter */
@@ -383,23 +358,11 @@ contract DAIBridge is Initializable, ValidatorsOperations {
         );
     }
 
-    function _pauseBridge() internal {
-        bridgeStatus = BridgeStatus.PAUSED;
-        emit BridgePausedByVolume(keccak256(abi.encodePacked(now)));
-    }
-
-    function _resumeBridge() internal {
-        bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
-    }
-
     function _addVolumeByMessageID(bytes32 messageID) internal {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
         currentDayVolumeForAddress[dateID][message.spender] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
-    }
-
-   
+    }  
 }
