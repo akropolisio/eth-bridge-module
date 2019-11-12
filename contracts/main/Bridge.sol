@@ -7,31 +7,13 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../helpers/ValidatorsOperations.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../bridge/Status.sol";
-import "../bridge/Limits.sol";
 import "../bridge/Transfers.sol";
+import "../bridge/Dao.sol";
 
-contract Bridge is Initializable, ValidatorsOperations, Transfers, Limits, Status {
+contract Bridge is Initializable, ValidatorsOperations, Transfers, Dao, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
-    /*
-    * Statuses
-    */
-    enum ProposalStatus {PENDING, APPROVED, DECLINED}
-
-    struct Proposal {
-        bytes32 proposalID;
-        uint value;
-        uint timestamp;
-        bool isExists;
-    }
-   
-    /** Proposals **/
-    mapping(bytes32 => Proposal) minTransactionValueProposals;
-    mapping(bytes32 => Proposal) maxTransactionValueProposals;
-    mapping(bytes32 => Proposal) dayMaxLimitProposals;
-    mapping(bytes32 => Proposal) dayMaxLimitForOneAddressProposals;
-    mapping(bytes32 => Proposal) maxPendingTransactionLimitProposals;
 
     /* volume transactions */
 
@@ -217,6 +199,22 @@ contract Bridge is Initializable, ValidatorsOperations, Transfers, Limits, Statu
     }
 
     /*
+     DAO Parameters
+    */
+    function createProposal(uint[10] memory parameters) 
+    onlyExistingValidator(msg.sender)
+    public  {
+        _createProposal(parameters);    
+    }
+
+    function _approvedNewProposal(bytes32 proposalID)
+    onlyManyValidators
+    public
+    {
+        _approvedNewProposal(limits, proposalID);
+    }
+
+    /*
      * Internal functions
     */
     function _addVolumeByMessageID(bytes32 messageID) internal {
@@ -230,4 +228,5 @@ contract Bridge is Initializable, ValidatorsOperations, Transfers, Limits, Statu
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
     }
+
 }

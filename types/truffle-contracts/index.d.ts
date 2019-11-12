@@ -12,8 +12,16 @@ export interface DAIBridgeContract extends Truffle.Contract<DAIBridgeInstance> {
   "new"(meta?: Truffle.TransactionDetails): Promise<DAIBridgeInstance>;
 }
 
+export interface DaoContract extends Truffle.Contract<DaoInstance> {
+  "new"(meta?: Truffle.TransactionDetails): Promise<DaoInstance>;
+}
+
 export interface IERC20Contract extends Truffle.Contract<IERC20Instance> {
   "new"(meta?: Truffle.TransactionDetails): Promise<IERC20Instance>;
+}
+
+export interface LimitsContract extends Truffle.Contract<LimitsInstance> {
+  "new"(meta?: Truffle.TransactionDetails): Promise<LimitsInstance>;
 }
 
 export interface StatusContract extends Truffle.Contract<StatusInstance> {
@@ -23,6 +31,10 @@ export interface StatusContract extends Truffle.Contract<StatusInstance> {
 export interface TestDateTimeContract
   extends Truffle.Contract<TestDateTimeInstance> {
   "new"(meta?: Truffle.TransactionDetails): Promise<TestDateTimeInstance>;
+}
+
+export interface TransfersContract extends Truffle.Contract<TransfersInstance> {
+  "new"(meta?: Truffle.TransactionDetails): Promise<TransfersInstance>;
 }
 
 export interface ValidatorsOperationsContract
@@ -124,6 +136,23 @@ export interface BridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  getLimits(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ]
+  >;
+
   howManyValidatorsDecide(
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
@@ -160,12 +189,22 @@ export interface BridgeInstance extends Truffle.ContractInstance {
   ): Promise<BigNumber>;
 
   initialize: {
-    (txDetails?: Truffle.TransactionDetails): Promise<
-      Truffle.TransactionResponse
-    >;
-    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
-    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
-    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+    (
+      _token: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      _token: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      _token: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      _token: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
   };
 
   setTransfer: {
@@ -403,22 +442,43 @@ export interface BridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  getLimits(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<
-    [
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber,
-      BigNumber
-    ]
-  >;
+  createProposal: {
+    (
+      parameters: (number | BigNumber | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      parameters: (number | BigNumber | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      parameters: (number | BigNumber | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      parameters: (number | BigNumber | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  _approvedNewProposal: {
+    (
+      proposalID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      proposalID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      proposalID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      proposalID: string | BigNumber,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
 }
 
 export interface DAIBridgeInstance extends Truffle.ContractInstance {
@@ -803,6 +863,25 @@ export interface DAIBridgeInstance extends Truffle.ContractInstance {
   >;
 }
 
+export interface DaoInstance extends Truffle.ContractInstance {
+  getLimits(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ]
+  >;
+}
+
 export interface IERC20Instance extends Truffle.ContractInstance {
   totalSupply(txDetails?: Truffle.TransactionDetails): Promise<BigNumber>;
 
@@ -889,6 +968,25 @@ export interface IERC20Instance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+}
+
+export interface LimitsInstance extends Truffle.ContractInstance {
+  getLimits(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<
+    [
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber,
+      BigNumber
+    ]
+  >;
 }
 
 export interface StatusInstance extends Truffle.ContractInstance {}
@@ -1125,6 +1223,8 @@ export interface TestDateTimeInstance extends Truffle.ContractInstance {
     txDetails?: Truffle.TransactionDetails
   ): Promise<BigNumber>;
 }
+
+export interface TransfersInstance extends Truffle.ContractInstance {}
 
 export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
   allOperations(
