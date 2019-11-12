@@ -7,13 +7,13 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../helpers/ValidatorsOperations.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../bridge/Status.sol";
+import "../bridge/Limits.sol";
 
-contract Bridge is Initializable, ValidatorsOperations, Status {
+contract Bridge is Initializable, ValidatorsOperations, Limits, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
     IERC20 private token;
-
 
     /*
     * Statuses
@@ -33,21 +33,6 @@ contract Bridge is Initializable, ValidatorsOperations, Status {
         uint availableAmount;
         bool isExists; //check message is exists
         TransferStatus status;
-    }
-
-    struct Limits {
-        //ETH Limits
-        uint minHostTransactionValue;
-        uint maxHostTransactionValue;
-        uint dayHostMaxLimit;
-        uint dayHostMaxLimitForOneAddress;
-        uint maxHostPendingTransactionLimit;
-        //ETH Limits
-        uint minGuestTransactionValue;
-        uint maxGuestTransactionValue;
-        uint dayGuestMaxLimit;
-        uint dayGuestMaxLimitForOneAddress;
-        uint maxGuestPendingTransactionLimit;
     }
 
     struct Proposal {
@@ -76,8 +61,6 @@ contract Bridge is Initializable, ValidatorsOperations, Status {
     mapping(address => Message) messagesBySender;
 
    
-    Limits private limits;
-  
     /** Proposals **/
     mapping(bytes32 => Proposal) minTransactionValueProposals;
     mapping(bytes32 => Proposal) maxTransactionValueProposals;
@@ -102,18 +85,7 @@ contract Bridge is Initializable, ValidatorsOperations, Status {
     initializer {
         ValidatorsOperations.initialize();
         token = _token;
-        limits.minHostTransactionValue = 10*10**18;
-        limits.maxHostTransactionValue = 100*10**18;
-        limits.dayHostMaxLimit = 200*10**18;
-        limits.dayHostMaxLimitForOneAddress = 50*10**18;
-        limits.maxHostPendingTransactionLimit = 400*10**18;
-
-        limits.minGuestTransactionValue = 10*10**18;
-        limits.maxGuestTransactionValue = 100*10**18;
-        limits.dayGuestMaxLimit = 200*10**18;
-        limits.dayGuestMaxLimitForOneAddress = 50*10**18;
-        limits.maxGuestPendingTransactionLimit = 400*10**18;
-       
+        init();
     } 
 
     // MODIFIERS
@@ -340,27 +312,11 @@ contract Bridge is Initializable, ValidatorsOperations, Status {
        _setResumedStatusForGuestAddress(sender);
     }
 
-    /*limit getter */
-    function getLimits() public view returns 
-    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
-        return (
-          limits.minHostTransactionValue,
-          limits.maxHostTransactionValue,
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-        //ETH Limits
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit
-        );
-    }
-
+    /*
+     * Internal functions
+    */
     function _addVolumeByMessageID(bytes32 messageID) internal {
         Message storage message = messages[messageID];
-        message.status = TransferStatus.CONFIRMED;
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
         currentDayVolumeForAddress[dateID][message.spender] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
