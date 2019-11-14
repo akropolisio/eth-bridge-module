@@ -18,6 +18,18 @@ contract Limits {
         uint maxGuestPendingTransactionLimit;
     }
 
+    event SetNewLimits(
+    uint minHostTransactionValue,
+    uint maxHostTransactionValue,
+    uint dayHostMaxLimit,
+    uint dayHostMaxLimitForOneAddress,
+    uint maxHostPendingTransactionLimit,
+    uint minGuestTransactionValue,
+    uint maxGuestTransactionValue,
+    uint dayGuestMaxLimit,
+    uint dayGuestMaxLimitForOneAddress,
+    uint maxGuestPendingTransactionLimit);
+
     BridgeLimits internal limits;
 
     /*limit getter */
@@ -50,5 +62,18 @@ contract Limits {
         limits.dayGuestMaxLimit = 200*10**18;
         limits.dayGuestMaxLimitForOneAddress = 50*10**18;
         limits.maxGuestPendingTransactionLimit = 400*10**18;
+
+        emit SetNewLimits(
+          limits.minHostTransactionValue, 
+          limits.maxHostTransactionValue, 
+          limits.dayHostMaxLimit,
+          limits.dayHostMaxLimitForOneAddress,
+          limits.maxHostPendingTransactionLimit,
+          limits.minGuestTransactionValue,
+          limits.maxGuestTransactionValue,
+          limits.dayGuestMaxLimit,
+          limits.dayGuestMaxLimitForOneAddress,
+          limits.maxGuestPendingTransactionLimit 
+        );
     }
 }

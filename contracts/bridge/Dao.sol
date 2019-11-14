@@ -13,8 +13,17 @@ contract Dao is Limits {
     */
     enum ProposalStatus {PENDING, APPROVED, DECLINED}
 
+    event ProposalCreated(bytes32 proposalID, address sender, uint minHostTransactionValue, 
+    uint maxHostTransactionValue,
+    uint dayHostMaxLimit,
+    uint dayHostMaxLimitForOneAddress,
+    uint maxHostPendingTransactionLimit,
+    uint minGuestTransactionValue,
+    uint maxGuestTransactionValue,
+    uint dayGuestMaxLimit,
+    uint dayGuestMaxLimitForOneAddress,
+    uint maxGuestPendingTransactionLimit);
 
-    event ProposalCreated(bytes32 proposalID, address sender, uint[10] parameters);
     event ProposalApproved(bytes32 proposalID);
 
     struct Proposal {
@@ -56,7 +65,7 @@ contract Dao is Limits {
         proposals[proposalID] = proposal;
         proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] = proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))]+1;
 
-        emit ProposalCreated(proposalID, msg.sender, parameters);
+        emit ProposalCreated(proposalID, msg.sender, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
     }
 
     function _approvedNewProposal(BridgeLimits storage limits, bytes32 proposalID) internal {
@@ -76,5 +85,17 @@ contract Dao is Limits {
         limits.maxGuestPendingTransactionLimit = proposal.limits.maxGuestPendingTransactionLimit;
 
         emit ProposalApproved(proposalID);
+        emit SetNewLimits(
+          limits.minHostTransactionValue, 
+          limits.maxHostTransactionValue, 
+          limits.dayHostMaxLimit,
+          limits.dayHostMaxLimitForOneAddress,
+          limits.maxHostPendingTransactionLimit,
+          limits.minGuestTransactionValue,
+          limits.maxGuestTransactionValue,
+          limits.dayGuestMaxLimit,
+          limits.dayGuestMaxLimitForOneAddress,
+          limits.maxGuestPendingTransactionLimit 
+        );
     }
 }

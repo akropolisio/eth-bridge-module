@@ -10,10 +10,10 @@ contract Status {
     /*
        Bridge pause/stop
     */
-    event BridgeStarted();
-    event BridgeStopped();
-    event BridgeResumed();
-    event BridgePaused();
+    event BridgeStarted(bytes32 messageID);
+    event BridgeStopped(bytes32 messageID);
+    event BridgeResumed(bytes32 messageID);
+    event BridgePaused(bytes32 messageID);
 
     //ETH Account
     event HostAccountPausedMessage(bytes32 messageID, address sender, uint timestamp);
@@ -57,45 +57,45 @@ contract Status {
     }
 
     function _pausedByBridgeVolumeForAddress(address sender) internal {
-        emit HostAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
+        emit HostAccountPausedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
         pauseAccountByVolume[sender] = true;
     }
 
     function _resumedByBridgeVolumeForAddress(address sender) internal {
         pauseAccountByVolume[sender] = false;
-        emit HostAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), msg.sender, now);
+        emit HostAccountResumedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
     }
 
     function _setPausedStatusForGuestAddress(bytes32 sender) internal {
-       emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
+       emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
     function _setResumedStatusForGuestAddress(bytes32 sender) internal
     {
-       emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay())), sender, now);
+       emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
     /* Bridge Status Function */
     function _startBridge() internal 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeStarted();
+        emit BridgeStarted(keccak256(abi.encodePacked(now)));
     }
 
     function _resumeBridge() internal
     {
         bridgeStatus = BridgeStatus.ACTIVE;
-        emit BridgeResumed();
+        emit BridgeResumed(keccak256(abi.encodePacked(now)));
     }
 
     function _stopBridge() internal {
         bridgeStatus = BridgeStatus.STOPPED;
-        emit BridgeStopped();
+        emit BridgeStopped(keccak256(abi.encodePacked(now)));
     }
 
     function _pauseBridge() internal {
         bridgeStatus = BridgeStatus.PAUSED;
-        emit BridgePaused();
+        emit BridgePaused(keccak256(abi.encodePacked(now)));
     }
 
 
