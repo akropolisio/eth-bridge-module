@@ -52,6 +52,12 @@ contract ValidatorsOperations is Initializable {
     }
 
     // PUBLIC METHODS
+    modifier existValidator(address wallet) {
+        require(isExistValidator(wallet), "Address is not Validator");
+        _;
+    }
+
+    // PUBLIC METHODS
     /**
     * @dev Allows validators to change their mind by cancelling votesMaskByOperation operations
     * @param operation defines which operation to delete
@@ -84,7 +90,7 @@ contract ValidatorsOperations is Initializable {
     * @param newValidators defines array of addresses of new validators
     * @param newHowManyValidatorsDecide defines how many validators can decide
     */
-    function changeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) internal {
+    function changeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) public {
         require(newValidators.length > 0, "changeValidatorsWithHowMany: validators array is empty");
         require(newValidators.length < 256, "changeValidatorsWithHowMany: validators count is greater then 255");
         require(newHowManyValidatorsDecide > 0, "changeValidatorsWithHowMany: newHowManyValidatorsDecide equal to 0");
@@ -122,11 +128,6 @@ contract ValidatorsOperations is Initializable {
         return validatorsIndices[wallet] > 0;
     }
 
-    modifier existValidator(address wallet) {
-        require(isExistValidator(wallet), "Address is not Validator");
-        _;
-    }
-    
     function validatorsCount() public view returns(uint) {
         return validators.length;
     }
@@ -299,4 +300,6 @@ contract ValidatorsOperations is Initializable {
         delete allOperationsIndicies[operation];
         delete operationsByValidatorIndex[operation];
     }
+
+   
 }

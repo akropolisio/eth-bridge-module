@@ -117,6 +117,29 @@ export interface BridgeInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  changeValidatorsWithHowMany: {
+    (
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   getGuestAddress(
     host: string | BigNumber,
     txDetails?: Truffle.TransactionDetails
@@ -1394,6 +1417,29 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  changeValidatorsWithHowMany: {
+    (
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
   cancelAllPending: {
     (txDetails?: Truffle.TransactionDetails): Promise<
       Truffle.TransactionResponse
@@ -1474,6 +1520,29 @@ export interface ValidatorsOperationsMockInstance
     ): Promise<string>;
     estimateGas(
       newValidators: (string | BigNumber)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  changeValidatorsWithHowMany: {
+    (
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      newValidators: (string | BigNumber)[],
+      newHowManyValidatorsDecide: number | BigNumber | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
