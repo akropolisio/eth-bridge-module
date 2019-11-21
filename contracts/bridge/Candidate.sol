@@ -1,7 +1,7 @@
 pragma solidity ^0.5.12;
 
 
-contract Candidate is  ValidatorsOperations {
+contract Candidate {
 
     struct ValidatorsListProposal {
         bytes messageID;

@@ -11,7 +11,7 @@ import "../bridge/Transfers.sol";
 import "../bridge/Dao.sol";
 import "../bridge/Candidate.sol";
 
-contract Bridge is Initializable, ValidatorsOptions, Candidate, Transfers, Dao, Status {
+contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Dao, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -218,12 +218,12 @@ contract Bridge is Initializable, ValidatorsOptions, Candidate, Transfers, Dao, 
     /*
         validatorsProposal
     */
-    function addCandidate(address host, bytes32 guest) internal notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
+    function addCandidate(address host, bytes32 guest) public notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
     {
         _addCandidate(host, guest);
     }
 
-    function _removeCandidate(address host) internal hostCandidateExists(host) existValidator(msg.sender) {
+    function removeCandidate(address host) public hostCandidateExists(host) existValidator(msg.sender) {
         _removeCandidate(host);
     }
 
