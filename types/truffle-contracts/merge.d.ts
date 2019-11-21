@@ -9,6 +9,7 @@ declare global {
   namespace Truffle {
     interface Artifacts {
       require(name: "Bridge"): TruffleContracts.BridgeContract;
+      require(name: "Candidate"): TruffleContracts.CandidateContract;
       require(name: "DAIBridge"): TruffleContracts.DAIBridgeContract;
       require(name: "Dao"): TruffleContracts.DaoContract;
       require(name: "IERC20"): TruffleContracts.IERC20Contract;

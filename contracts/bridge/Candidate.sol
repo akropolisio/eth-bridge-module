@@ -1,6 +1,5 @@
 pragma solidity ^0.5.12;
 
-import "../helpers/ValidatorsOperations.sol";
 
 contract Candidate is  ValidatorsOperations {
 
@@ -14,6 +13,7 @@ contract Candidate is  ValidatorsOperations {
         address host;
         bytes32 guest;
         bool isExists;
+
     }
 
     mapping (address => CandidateValidator) candidates;
@@ -37,14 +37,14 @@ contract Candidate is  ValidatorsOperations {
         _;
     }
 
-    function addCandidate(address host, bytes32 guest) public notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender) {
+    function _addCandidate(address host, bytes32 guest) internal notHostCandidateExists(host) notGuestCandidateExists(guest)  {
         CandidateValidator memory c = CandidateValidator(host, guest, true);
         candidates[host] = c;
         guestCandidates[guest] = true;
         emit AddCandidateValidator(keccak256(abi.encodePacked(now)), host, guest);
     }
 
-    function removeCandidate(address host) public hostCandidateExists(host) existValidator(msg.sender) {
+    function _removeCandidate(address host) internal hostCandidateExists(host) {
         candidates[host].isExists = false;
         guestCandidates[candidates[host].guest] = false;
         emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);

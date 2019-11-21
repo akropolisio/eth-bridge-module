@@ -2,6 +2,7 @@ pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "../helpers/ValidatorsOperations.sol";
 
 //Beneficieries (validators) template
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
@@ -10,7 +11,7 @@ import "../bridge/Transfers.sol";
 import "../bridge/Dao.sol";
 import "../bridge/Candidate.sol";
 
-contract Bridge is Initializable, Candidate, Transfers, Dao, Status {
+contract Bridge is Initializable, ValidatorsOptions, Candidate, Transfers, Dao, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -212,6 +213,18 @@ contract Bridge is Initializable, Candidate, Transfers, Dao, Status {
     public
     {
         _approvedNewProposal(limits, proposalID);
+    }
+
+    /*
+        validatorsProposal
+    */
+    function addCandidate(address host, bytes32 guest) internal notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
+    {
+        _addCandidate(host, guest);
+    }
+
+    function _removeCandidate(address host) internal hostCandidateExists(host) existValidator(msg.sender) {
+        _removeCandidate(host);
     }
 
     /*
