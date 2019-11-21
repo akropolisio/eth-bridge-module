@@ -4,13 +4,13 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 //Beneficieries (validators) template
-import "../helpers/ValidatorsOperations.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../bridge/Status.sol";
 import "../bridge/Transfers.sol";
 import "../bridge/Dao.sol";
+import "../bridge/Candidate.sol";
 
-contract Bridge is Initializable, ValidatorsOperations, Transfers, Dao, Status {
+contract Bridge is Initializable, Candidate, Transfers, Dao, Status {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 

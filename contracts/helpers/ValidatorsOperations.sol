@@ -122,6 +122,11 @@ contract ValidatorsOperations is Initializable {
         return validatorsIndices[wallet] > 0;
     }
 
+    modifier existValidator(address wallet) {
+        require(isExistValidator(wallet), "Address is not Validator");
+        _;
+    }
+    
     function validatorsCount() public view returns(uint) {
         return validators.length;
     }
