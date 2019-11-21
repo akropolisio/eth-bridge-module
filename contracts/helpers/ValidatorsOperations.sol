@@ -75,7 +75,7 @@ contract ValidatorsOperations is Initializable {
     * @dev Allows validators to change validatorsship
     * @param newValidators defines array of addresses of new validators
     */
-    function changeValidators(address[] memory newValidators) public {
+    function changeValidators(address[] memory newValidators) public onlyManyValidators {
         changeValidatorsWithHowMany(newValidators, newValidators.length);
     }
 
@@ -84,7 +84,7 @@ contract ValidatorsOperations is Initializable {
     * @param newValidators defines array of addresses of new validators
     * @param newHowManyValidatorsDecide defines how many validators can decide
     */
-    function changeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) public onlyManyValidators {
+    function changeValidatorsWithHowMany(address[] memory newValidators, uint256 newHowManyValidatorsDecide) internal {
         require(newValidators.length > 0, "changeValidatorsWithHowMany: validators array is empty");
         require(newValidators.length < 256, "changeValidatorsWithHowMany: validators count is greater then 255");
         require(newHowManyValidatorsDecide > 0, "changeValidatorsWithHowMany: newHowManyValidatorsDecide equal to 0");
