@@ -160,7 +160,7 @@ contract Bridge is Initializable, ValidatorsOperations, Transfers, Dao, Status {
     activeBridgeStatus 
     cancelMessage(messageID)  
     onlyManyValidators {
-       _confirmWithdrawTransfer(messageID);
+       _confirmCancelTransfer(messageID);
     }
 
     /* Bridge Status Function */
