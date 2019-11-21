@@ -37,7 +37,7 @@ contract ValidatorsOperations is Initializable {
     mapping(uint8 => uint8) internal operationsCountByValidatorIndex;
     // EVENTS
 
-    event changeValidatorsList(address[] previousValidators, uint howManyValidatorsDecide, address[] newvalidators, uint newHowManyValidatorsDecide);
+    event ChangeValidatorsList(bytes32 messageID, address[] previousValidators, uint howManyValidatorsDecide, address[] newvalidators, uint newHowManyValidatorsDecide);
     event OperationCreated(bytes32 operation, uint howMany, uint validatorsCount, address proposer);
     event OperationUpvoted(bytes32 operation, uint votes, uint howMany, uint validatorsCount, address upvoter);
     event OperationPerformed(bytes32 operation, uint howMany, uint validatorsCount, address performer);
@@ -101,7 +101,7 @@ contract ValidatorsOperations is Initializable {
             validatorsIndices[newValidators[i]] = uint8(i.add(1));
         }
         
-        emit changeValidatorsList(validators, howManyValidatorsDecide, newValidators, newHowManyValidatorsDecide);
+        emit ChangeValidatorsList(keccak256(abi.encodePacked(now)), validators, howManyValidatorsDecide, newValidators, newHowManyValidatorsDecide);
         validators = newValidators;
         howManyValidatorsDecide = newHowManyValidatorsDecide;
 

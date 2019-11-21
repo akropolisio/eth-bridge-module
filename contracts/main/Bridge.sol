@@ -208,7 +208,7 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
         _createProposal(parameters);    
     }
 
-    function _approvedNewProposal(bytes32 proposalID)
+    function approvedNewProposal(bytes32 proposalID)
     onlyManyValidators
     public
     {
@@ -218,6 +218,23 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
     /*
         validatorsProposal
     */
+    function createCandidatesValidatorsProposal(address[] memory hosts)
+    onlyExistingValidator(msg.sender)
+    public {
+        _createCandidatesValidatorsProposal(hosts);
+    }
+
+    function approveNewValidatorsList(bytes32 proposalID)
+    onlyManyValidators
+    public {
+        ValidatorsListProposal storage v = validatorsCandidatesPropoposals[proposalID];
+
+        address[] memory hosts = v.hosts;
+
+        changeValidatorsWithHowMany(hosts, hosts.length*6/10);
+        
+    }
+
     function addCandidate(address host, bytes32 guest) public notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
     {
         _addCandidate(host, guest);
@@ -241,5 +258,8 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
     }
+
+
+
 
 }

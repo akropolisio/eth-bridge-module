@@ -5,7 +5,7 @@ contract Candidate {
 
     struct ValidatorsListProposal {
         bytes32 proposalID;
-        address[] candidates;
+        address[] hosts;
         bool isExists;
     }
 
@@ -62,7 +62,7 @@ contract Candidate {
         emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);
     }
 
-    function _createCandidateValidatorProposal(address[] memory hosts) internal {
+    function _createCandidatesValidatorsProposal(address[] memory hosts) internal {
         require(hosts.length <= 10, "Host lenth is long");
 
         bool notHostExists = false;
