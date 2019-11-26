@@ -37,7 +37,7 @@ contract ValidatorsOperations is Initializable {
     mapping(uint8 => uint8) internal operationsCountByValidatorIndex;
     // EVENTS
 
-    event ChangeValidatorsList(bytes32 messageID, address[] previousValidators, uint howManyValidatorsDecide, address[] newvalidators, uint newHowManyValidatorsDecide);
+    event ChangeValidatorsList(bytes32 messageID, address[] previousValidators, uint howManyValidatorsDecide, address[] newValidators, uint newHowManyValidatorsDecide);
     event OperationCreated(bytes32 operation, uint howMany, uint validatorsCount, address proposer);
     event OperationUpvoted(bytes32 operation, uint votes, uint howMany, uint validatorsCount, address upvoter);
     event OperationPerformed(bytes32 operation, uint howMany, uint validatorsCount, address performer);
