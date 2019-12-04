@@ -31,6 +31,19 @@ contract Limits {
     uint maxGuestPendingTransactionLimit);
 
     BridgeLimits internal limits;
+    
+    function setLimits(uint minHostTransactionValue,
+    uint maxHostTransactionValue,
+    uint dayHostMaxLimit,
+    uint dayHostMaxLimitForOneAddress,
+    uint maxHostPendingTransactionLimit,
+    uint minGuestTransactionValue,
+    uint maxGuestTransactionValue,
+    uint dayGuestMaxLimit,
+    uint dayGuestMaxLimitForOneAddress,
+    uint maxGuestPendingTransactionLimit) public {
+      
+    }
 
     /*limit getter */
     function getLimits() public view returns 
@@ -49,6 +62,7 @@ contract Limits {
           limits.maxGuestPendingTransactionLimit
         );
     }
+
     
     function init() internal {
         limits.minHostTransactionValue = 10*10**18;
