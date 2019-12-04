@@ -2,10 +2,11 @@ pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../bridge/Limits.sol";
-import "../helpers/ValidatorsOperations.sol";
-import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
-contract Dao is Limits {
+import "../interfaces/ILimits.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+contract Dao  {
 
     using BokkyPooBahsDateTimeLibrary for uint;
     /*

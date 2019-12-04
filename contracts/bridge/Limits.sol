@@ -2,7 +2,11 @@ pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 
-contract Limits {
+import "../interfaces/ILimits.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+
+contract Limits is ILimits {
+  
      struct BridgeLimits {
         //ETH Limits
         uint minHostTransactionValue;
