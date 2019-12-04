@@ -1,7 +1,9 @@
 pragma solidity ^0.5.12;
 
+import "../interfaces/ICandidate.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract Candidate {
+contract Candidate is ICandidate {
 
     struct ValidatorsListProposal {
         bytes32 proposalID;
@@ -23,6 +25,37 @@ contract Candidate {
     event AddCandidateValidator(bytes32 messageID, address host, bytes32 guest);
     event RemoveCandidateValidator(bytes32 messageID, address host, bytes32 guest);
     event ProposalCandidatesValidatorsCreated(bytes32 messageID, address[] hosts);
+
+    function addCandidate(address host, bytes32 guest) external notHostCandidateExists(host) notGuestCandidateExists(guest)  {
+        CandidateValidator memory c = CandidateValidator(host, guest, true);
+        candidates[host] = c;
+        guestCandidates[guest] = true;
+        emit AddCandidateValidator(keccak256(abi.encodePacked(now)), host, guest);
+    }
+
+    function removeCandidate(address host) external hostCandidateExists(host) {
+        candidates[host].isExists = false;
+        guestCandidates[candidates[host].guest] = false;
+        emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);
+    }
+
+    function createCandidatesValidatorsProposal(address[] calldata hosts) external {
+        require(hosts.length <= 10, "Host lenth is long");
+
+        bool notHostExists = false;
+
+        for (uint i = 0; i < hosts.length; i++) {
+            if (!isCandidateExists(hosts[i])) {
+                notHostExists = true;
+            }
+        }
+        require(notHostExists, "One or more host are not a candidate");
+
+        bytes32 proposalID = keccak256(abi.encodePacked(now));
+        ValidatorsListProposal memory v = ValidatorsListProposal(proposalID, hosts, true);
+        validatorsCandidatesPropoposals[proposalID] = v;
+        emit ProposalCandidatesValidatorsCreated(proposalID, hosts);
+    }
 
     modifier hostCandidateExists(address host) {
         require(!candidates[host].isExists, "Host is not exists");
@@ -47,36 +80,5 @@ contract Candidate {
         require(candidates[host].isExists, "Key is not exists");
 
         return candidates[host].guest;
-    }
-
-    function _addCandidate(address host, bytes32 guest) internal notHostCandidateExists(host) notGuestCandidateExists(guest)  {
-        CandidateValidator memory c = CandidateValidator(host, guest, true);
-        candidates[host] = c;
-        guestCandidates[guest] = true;
-        emit AddCandidateValidator(keccak256(abi.encodePacked(now)), host, guest);
-    }
-
-    function _removeCandidate(address host) internal hostCandidateExists(host) {
-        candidates[host].isExists = false;
-        guestCandidates[candidates[host].guest] = false;
-        emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);
-    }
-
-    function _createCandidatesValidatorsProposal(address[] memory hosts) internal {
-        require(hosts.length <= 10, "Host lenth is long");
-
-        bool notHostExists = false;
-
-        for (uint i = 0; i < hosts.length; i++) {
-            if (!isCandidateExists(hosts[i])) {
-                notHostExists = true;
-            }
-        }
-        require(notHostExists, "One or more host are not a candidate");
-
-        bytes32 proposalID = keccak256(abi.encodePacked(now));
-        ValidatorsListProposal memory v = ValidatorsListProposal(proposalID, hosts, true);
-        validatorsCandidatesPropoposals[proposalID] = v;
-        emit ProposalCandidatesValidatorsCreated(proposalID, hosts);
     }
 }

@@ -45,7 +45,7 @@ contract Dao is Limits {
         _;
     }
 
-    function _createProposal(uint[10] memory parameters) checkProposalByDate internal {
+    function createProposal(uint[10] calldata parameters) checkProposalByDate external {
 
         BridgeLimits memory limits;
         limits.minHostTransactionValue = parameters[0];
@@ -68,7 +68,7 @@ contract Dao is Limits {
         emit ProposalCreated(proposalID, msg.sender, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
     }
 
-    function _approvedNewProposal(BridgeLimits storage limits, bytes32 proposalID) internal {
+    /*function approvedNewProposal(bytes32 proposalID) external {
         Proposal memory proposal = proposals[proposalID];
 
         proposal.status = ProposalStatus.APPROVED;
@@ -97,5 +97,5 @@ contract Dao is Limits {
           limits.dayGuestMaxLimitForOneAddress,
           limits.maxGuestPendingTransactionLimit 
         );
-    }
+    }*/
 }

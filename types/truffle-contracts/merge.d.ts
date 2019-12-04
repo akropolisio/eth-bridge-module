@@ -10,10 +10,10 @@ declare global {
     interface Artifacts {
       require(name: "Bridge"): TruffleContracts.BridgeContract;
       require(name: "Candidate"): TruffleContracts.CandidateContract;
-      require(name: "DAIBridge"): TruffleContracts.DAIBridgeContract;
       require(name: "Dao"): TruffleContracts.DaoContract;
       require(name: "IERC20"): TruffleContracts.IERC20Contract;
       require(name: "Limits"): TruffleContracts.LimitsContract;
+      require(name: "Migrations"): TruffleContracts.MigrationsContract;
       require(name: "Status"): TruffleContracts.StatusContract;
       require(name: "TestDateTime"): TruffleContracts.TestDateTimeContract;
       require(name: "Transfers"): TruffleContracts.TransfersContract;

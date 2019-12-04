@@ -221,7 +221,7 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
     function createCandidatesValidatorsProposal(address[] memory hosts)
     onlyExistingValidator(msg.sender)
     public {
-        _createCandidatesValidatorsProposal(hosts);
+        //_createCandidatesValidatorsProposal(hosts);
     }
 
     function approveNewValidatorsList(bytes32 proposalID)
@@ -237,11 +237,11 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
 
     function addCandidate(address host, bytes32 guest) public notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
     {
-        _addCandidate(host, guest);
+        //_addCandidate(host, guest);
     }
 
     function removeCandidate(address host) public hostCandidateExists(host) existValidator(msg.sender) {
-        _removeCandidate(host);
+        //_removeCandidate(host);
     }
 
     /*
