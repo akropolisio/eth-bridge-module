@@ -1,9 +1,10 @@
 pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "../interfaces/IStatus.sol";
 
 contract Status {
-
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -30,7 +31,7 @@ contract Status {
 
     BridgeStatus internal bridgeStatus;
 
-    bool internal pauseBridgeByVolume;
+    bool internal pauseBridgeByVolumeBool;
 
     mapping(address => bool) internal pauseAccountByVolume;
 
@@ -44,56 +45,56 @@ contract Status {
         _;
     }
 
-    function _pauseBridgeByVolume() internal {
-        pauseBridgeByVolume = true;
+    function pauseBridgeByVolume() external {
+        pauseBridgeByVolumeBool = true;
         bridgeStatus = BridgeStatus.PAUSED_BY_VOLUME;
         emit BridgePausedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function _resumeBridgeByVolume() internal {
-        pauseBridgeByVolume = false;
+    function resumeBridgeByVolume() external {
+        pauseBridgeByVolumeBool = false;
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function _pausedByBridgeVolumeForAddress(address sender) internal {
+    function pausedByBridgeVolumeForAddress(address sender) external {
         emit HostAccountPausedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
         pauseAccountByVolume[sender] = true;
     }
 
-    function _resumedByBridgeVolumeForAddress(address sender) internal {
+    function resumedByBridgeVolumeForAddress(address sender) external {
         pauseAccountByVolume[sender] = false;
         emit HostAccountResumedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
     }
 
-    function _setPausedStatusForGuestAddress(bytes32 sender) internal {
+    function setPausedStatusForGuestAddress(bytes32 sender) external {
        emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
-    function _setResumedStatusForGuestAddress(bytes32 sender) internal
+    function setResumedStatusForGuestAddress(bytes32 sender) external
     {
        emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
     /* Bridge Status Function */
-    function _startBridge() internal 
+    function startBridge() external 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted(keccak256(abi.encodePacked(now)));
     }
 
-    function _resumeBridge() internal
+    function resumeBridge() external
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeResumed(keccak256(abi.encodePacked(now)));
     }
 
-    function _stopBridge() internal {
+    function stopBridge() external {
         bridgeStatus = BridgeStatus.STOPPED;
         emit BridgeStopped(keccak256(abi.encodePacked(now)));
     }
 
-    function _pauseBridge() internal {
+    function pauseBridge() external {
         bridgeStatus = BridgeStatus.PAUSED;
         emit BridgePaused(keccak256(abi.encodePacked(now)));
     }
