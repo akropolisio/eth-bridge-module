@@ -3,6 +3,11 @@ pragma solidity ^0.5.12;
 import "../interfaces/ICandidate.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+
+/*
+ add contructor for initialize
+*/
+
 contract Candidate is ICandidate {
 
     struct ValidatorsListProposal {

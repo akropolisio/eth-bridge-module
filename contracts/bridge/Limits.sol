@@ -1,12 +1,16 @@
 pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
-
 import "../interfaces/ILimits.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+
+/*
+ add contructor for initialize
+*/
+
 contract Limits is ILimits {
-  
+
      struct BridgeLimits {
         //ETH Limits
         uint minHostTransactionValue;
@@ -67,7 +71,6 @@ contract Limits is ILimits {
         );
     }
 
-    
     function init() internal {
         limits.minHostTransactionValue = 10*10**18;
         limits.maxHostTransactionValue = 100*10**18;

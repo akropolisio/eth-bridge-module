@@ -2,7 +2,8 @@ pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
-
+import "../interfaces/ITransfer.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 contract Transfers {
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
@@ -86,7 +87,7 @@ contract Transfers {
         _;
     }
 
-    function _setTransfer(uint amount, bytes32 guestAddress) internal 
+    function setTransfer(uint amount, bytes32 guestAddress) external 
     allowTransfer(amount) {
          /** to modifier **/
         
@@ -97,40 +98,40 @@ contract Transfers {
         emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
     }
 
-    function _revertTransfer(bytes32 messageID) internal {
+    function revertTransfer(bytes32 messageID) external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED;
         token.transfer(msg.sender, message.availableAmount);
         emit RevertMessage(messageID, msg.sender, message.availableAmount);
     }
 
-    function _approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) internal {
+    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
         emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount);
     }
 
-    function _confirmTransfer(bytes32 messageID) internal {
+    function confirmTransfer(bytes32 messageID) external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function _withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) internal {
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) external {
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
         messages[messageID] = message;
         emit WithdrawMessage(messageID, recipient, sender, availableAmount);
     }
 
-    function _confirmWithdrawTransfer(bytes32 messageID) internal {
+    function confirmWithdrawTransfer(bytes32 messageID) external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function  _confirmCancelTransfer(bytes32 messageID) internal {
+    function  confirmCancelTransfer(bytes32 messageID) external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
