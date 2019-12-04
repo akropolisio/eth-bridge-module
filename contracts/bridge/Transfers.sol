@@ -3,14 +3,12 @@ pragma solidity ^0.5.12;
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
-import "../interfaces/ITransfer.sol";
+import "../interfaces/ITransfers.sol";
 
 
-contract Transfers is ITransfer {
+contract Transfers is ITransfers {
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
-    IERC20 internal token;
-
     /*
         Struct
     */

@@ -6,7 +6,9 @@ import "../bridge/Limits.sol";
 import "../interfaces/ILimits.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
-contract Dao  {
+import "../interfaces/IDao.sol";
+
+contract Dao is Limits  {
 
     using BokkyPooBahsDateTimeLibrary for uint;
     /*

@@ -6,12 +6,14 @@ import "../helpers/ValidatorsOperations.sol";
 
 //Beneficieries (validators) template
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
-import "../bridge/Status.sol";
-import "../bridge/Transfers.sol";
-import "../bridge/Dao.sol";
-import "../bridge/Candidate.sol";
+import "../interfaces/IStatus.sol";
+import "../interfaces/ITransfers.sol";
+import "../interfaces/IDao.sol";
+import "../interfaces/ICandidate.sol";
+import "../interfaces/ILimits.sol";
 
-contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Dao, Status {
+
+contract Bridge is Initializable, ValidatorsOperations {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -29,11 +31,9 @@ contract Bridge is Initializable, ValidatorsOperations, Candidate, Transfers, Da
     * @notice Constructor.
     * @param _token  Address of DAI token
     */
-    function initialize(IERC20 _token) public 
+    function initialize(IERC20 _token, IStatus status, ITransfers transfer, IDao dao, ICandidate candidate, ILimits limits) public 
     initializer {
         ValidatorsOperations.initialize();
-        token = _token;
-        init();
     } 
 
     // MODIFIERS
