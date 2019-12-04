@@ -26,14 +26,24 @@ contract Bridge is Initializable, ValidatorsOperations {
     mapping(bytes32 => uint) currentVPendingVolumeByDate;
 
     mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
+
+    IStatus statusContract;
+    ITransfers transferContract;
+    IDao daoContract; 
+    ICandidate candidateContract;
+    ILimits limitsContract;
     
     /**
-    * @notice Constructor.
-    * @param _token  Address of DAI token
+    * @notice Constructor
     */
-    function initialize(IERC20 _token, IStatus status, ITransfers transfer, IDao dao, ICandidate candidate, ILimits limits) public 
+    function initialize(IStatus _status, ITransfers _transfer, IDao _dao, ICandidate _candidate, ILimits _limits) public 
     initializer {
         ValidatorsOperations.initialize();
+        statusContract = _status;
+        daoContract = _dao;
+        transferContract = _transfer;
+        candidateContract = _candidate;
+        limitsContract = _limits;
     } 
 
     // MODIFIERS
@@ -46,7 +56,7 @@ contract Bridge is Initializable, ValidatorsOperations {
     }
     
     modifier checkMinMaxTransactionValue(uint value) {
-        require(value < limits.maxHostTransactionValue && value < limits.minHostTransactionValue, "Transaction value is too  small or large");
+        require(value < limitsContract.limits.maxHostTransactionValue && value < limitsContract.limits.minHostTransactionValue, "Transaction value is too  small or large");
         _;
     }
 
@@ -55,7 +65,7 @@ contract Bridge is Initializable, ValidatorsOperations {
             _;
             _pauseBridgeByVolume();
         } else {
-            if (pauseBridgeByVolume) {
+            if (pauseBridgeByVolumeBool) {
                 _resumeBridgeByVolume();
             }
             _;

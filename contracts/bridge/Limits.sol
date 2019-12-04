@@ -38,7 +38,7 @@ contract Limits is ILimits {
     uint dayGuestMaxLimitForOneAddress,
     uint maxGuestPendingTransactionLimit);
 
-    BridgeLimits internal limits;
+    BridgeLimits public limits;
     
     function setLimits(uint minHostTransactionValue,
     uint maxHostTransactionValue,

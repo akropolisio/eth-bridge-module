@@ -4,11 +4,13 @@ import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../interfaces/ITransfers.sol";
-
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
 contract Transfers is ITransfers {
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
+    IERC20 token;
+
     /*
         Struct
     */
