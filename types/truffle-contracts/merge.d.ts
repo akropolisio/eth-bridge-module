@@ -11,7 +11,12 @@ declare global {
       require(name: "Bridge"): TruffleContracts.BridgeContract;
       require(name: "Candidate"): TruffleContracts.CandidateContract;
       require(name: "Dao"): TruffleContracts.DaoContract;
+      require(name: "ICandidate"): TruffleContracts.ICandidateContract;
+      require(name: "IDao"): TruffleContracts.IDaoContract;
       require(name: "IERC20"): TruffleContracts.IERC20Contract;
+      require(name: "ILimits"): TruffleContracts.ILimitsContract;
+      require(name: "IStatus"): TruffleContracts.IStatusContract;
+      require(name: "ITransfers"): TruffleContracts.ITransfersContract;
       require(name: "Limits"): TruffleContracts.LimitsContract;
       require(name: "Migrations"): TruffleContracts.MigrationsContract;
       require(name: "Status"): TruffleContracts.StatusContract;

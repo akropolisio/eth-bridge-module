@@ -13,4 +13,6 @@ contract IStatus {
     function resumeBridge() external;
     function stopBridge() external;
     function pauseBridge() external;
+    function getStatusBridge() external view returns(uint);
+    function getStatusForAccount(address account) external view returns(uint);
 }

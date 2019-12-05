@@ -31,7 +31,7 @@ contract Status {
 
     BridgeStatus internal bridgeStatus;
 
-    bool internal pauseBridgeByVolumeBool;
+    bool public pauseBridgeByVolumeBool;
 
     mapping(address => bool) internal pauseAccountByVolume;
 
@@ -99,5 +99,12 @@ contract Status {
         emit BridgePaused(keccak256(abi.encodePacked(now)));
     }
 
+    function getStatusBridge() external  view returns(uint) {
+        return uint(bridgeStatus);
+    }
+
+    function getStatusForAccount(address account) external view returns(uint) {
+        return pauseAccountByVolume[account] ? 1 : 0;
+    }
 
 }

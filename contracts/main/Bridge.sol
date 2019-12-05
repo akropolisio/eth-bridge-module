@@ -50,7 +50,7 @@ contract Bridge is Initializable, ValidatorsOperations {
     /**
      * @dev Allows to perform method by existing Validator
     */
-    modifier onlyExistingValidator(address _Validator) {
+    /*modifier onlyExistingValidator(address _Validator) {
         require(isExistValidator(_Validator), "address is not in Validator array");
          _;
     }
@@ -94,12 +94,12 @@ contract Bridge is Initializable, ValidatorsOperations {
             }
             _;
         }
-    }
+    }*/
 
     /*
         public functions
     */
-    function setTransfer(uint amount, bytes32 guestAddress) public 
+    /*function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkPendingDayVolumeTransaction()
@@ -107,33 +107,35 @@ contract Bridge is Initializable, ValidatorsOperations {
     checkDayVolumeTransactionForAddress() {
        _addPendingVolumeByDate(amount);
        _setTransfer(amount, guestAddress);
-    }
+    }*/
 
     /*
         revert function
     */
-    function revertTransfer(bytes32 messageID) public 
+    
+    /*function revertTransfer(bytes32 messageID) public 
     activeBridgeStatus
     pendingMessage(messageID)  
     onlyManyValidators {
         _revertTransfer(messageID);
-    }
+    }*/
 
     /*
     * Approve finance by message ID when transfer pending
     */
-    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
+    /*function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
     activeBridgeStatus 
     validMessage(messageID, spender, guestAddress, availableAmount) 
     pendingMessage(messageID) 
     onlyManyValidators {
        _approveTransfer(messageID, spender, guestAddress, availableAmount);
     }
+    */
 
     /*
     * Confirm tranfer by message ID when transfer pending
     */
-    function confirmTransfer(bytes32 messageID) public 
+    /*function confirmTransfer(bytes32 messageID) public 
     activeBridgeStatus
     approvedMessage(messageID)  
     checkDayVolumeTransaction()
@@ -142,56 +144,63 @@ contract Bridge is Initializable, ValidatorsOperations {
         _confirmTransfer(messageID);
         _addVolumeByMessageID(messageID);
     }
-
+    */
     /*
     * Withdraw tranfer by message ID after approve from guest
     */
-    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
+    /*function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
     activeBridgeStatus
     checkBalance(availableAmount)
     onlyManyValidators {
         _withdrawTransfer(messageID, sender, recipient, availableAmount);
     }
-
+    */
     /*
     * Confirm Withdraw tranfer by message ID after approve from guest
     */
-    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
+    /*function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress()
     onlyManyValidators {
         _confirmWithdrawTransfer(messageID);
     }
-
+    */
     /*
     * Confirm Withdraw cancel by message ID after approve from guest
     */
+    
+    /*
     function confirmCancelTransfer(bytes32 messageID)  public 
     activeBridgeStatus 
     cancelMessage(messageID)  
     onlyManyValidators {
        _confirmCancelTransfer(messageID);
     }
-
+    */
     /* Bridge Status Function */
+    /*
     function startBridge() public 
     stoppedOrPausedBridgeStatus 
     onlyManyValidators {
         _startBridge();
     }
-
+    */
+    
+    /*
     function resumeBridge() public 
     stoppedOrPausedBridgeStatus 
     onlyManyValidators {
         _resumeBridge();
     }
+    */
 
+    /*
     function stopBridge() public 
     onlyManyValidators {
         _stopBridge();
     }
-
+    
     function pauseBridge() public 
     onlyManyValidators {
         _pauseBridge();
@@ -208,11 +217,12 @@ contract Bridge is Initializable, ValidatorsOperations {
     public {
        _setResumedStatusForGuestAddress(sender);
     }
+    */
 
     /*
      DAO Parameters
     */
-    function createProposal(uint[10] memory parameters) 
+    /*function createProposal(uint[10] memory parameters) 
     onlyExistingValidator(msg.sender)
     public  {
         _createProposal(parameters);    
@@ -223,11 +233,12 @@ contract Bridge is Initializable, ValidatorsOperations {
     public
     {
         _approvedNewProposal(limits, proposalID);
-    }
+    }*/
 
     /*
         validatorsProposal
     */
+    /*
     function createCandidatesValidatorsProposal(address[] memory hosts)
     onlyExistingValidator(msg.sender)
     public {
@@ -253,11 +264,12 @@ contract Bridge is Initializable, ValidatorsOperations {
     function removeCandidate(address host) public hostCandidateExists(host) existValidator(msg.sender) {
         //_removeCandidate(host);
     }
-
+    */
     /*
      * Internal functions
     */
-    function _addVolumeByMessageID(bytes32 messageID) internal {
+
+    /*function _addVolumeByMessageID(bytes32 messageID) internal {
         Message storage message = messages[messageID];
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
@@ -267,9 +279,5 @@ contract Bridge is Initializable, ValidatorsOperations {
     function _addPendingVolumeByDate(uint256 availableAmount) internal {
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
-    }
-
-
-
-
+    }*/
 }
