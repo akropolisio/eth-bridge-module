@@ -4,7 +4,7 @@ import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../interfaces/IStatus.sol";
 
-contract Status {
+contract Status is Initializable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -107,4 +107,5 @@ contract Status {
         return pauseAccountByVolume[account] ? 1 : 0;
     }
 
+    function initialize() initializer public {}
 }
