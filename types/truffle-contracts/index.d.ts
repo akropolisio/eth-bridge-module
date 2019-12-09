@@ -324,6 +324,24 @@ export interface DaoInstance extends Truffle.ContractInstance {
     ]
   >;
 
+  init: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
+  initialize: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   limits(
     txDetails?: Truffle.TransactionDetails
   ): Promise<
@@ -651,6 +669,15 @@ export interface ILimitsInstance extends Truffle.ContractInstance {
       maxGuestPendingTransactionLimit: number | BigNumber | string,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
+  };
+
+  init: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
   };
 
   getLimits(
@@ -1046,6 +1073,15 @@ export interface LimitsInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  init: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   getLimits(
     txDetails?: Truffle.TransactionDetails
   ): Promise<
@@ -1062,6 +1098,15 @@ export interface LimitsInstance extends Truffle.ContractInstance {
       BigNumber
     ]
   >;
+
+  initialize: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
 }
 
 export interface MigrationsInstance extends Truffle.ContractInstance {

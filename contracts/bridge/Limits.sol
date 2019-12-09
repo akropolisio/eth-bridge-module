@@ -9,7 +9,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
  add contructor for initialize
 */
 
-contract Limits is ILimits {
+contract Limits is ILimits, Initializable {
 
      struct BridgeLimits {
         //ETH Limits
@@ -120,4 +120,6 @@ contract Limits is ILimits {
           limits.maxGuestPendingTransactionLimit
         );
     }
+
+    function initialize() initializer public {}
 }

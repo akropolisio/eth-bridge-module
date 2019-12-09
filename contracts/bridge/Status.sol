@@ -4,7 +4,7 @@ import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../interfaces/IStatus.sol";
 
-contract Status is Initializable {
+contract Status is IStatus, Initializable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
