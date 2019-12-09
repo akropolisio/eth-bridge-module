@@ -76,33 +76,6 @@ contract Limits is ILimits, Initializable {
         );
     }
 
-    function init() external {
-        limits.minHostTransactionValue = 10*10**18;
-        limits.maxHostTransactionValue = 100*10**18;
-        limits.dayHostMaxLimit = 200*10**18;
-        limits.dayHostMaxLimitForOneAddress = 50*10**18;
-        limits.maxHostPendingTransactionLimit = 400*10**18;
-
-        limits.minGuestTransactionValue = 10*10**18;
-        limits.maxGuestTransactionValue = 100*10**18;
-        limits.dayGuestMaxLimit = 200*10**18;
-        limits.dayGuestMaxLimitForOneAddress = 50*10**18;
-        limits.maxGuestPendingTransactionLimit = 400*10**18;
-
-        emit SetNewLimits(
-          limits.minHostTransactionValue, 
-          limits.maxHostTransactionValue, 
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit 
-        );
-    }
-
     /*limit getter */
     function getLimits() external view returns 
     (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
@@ -120,6 +93,35 @@ contract Limits is ILimits, Initializable {
           limits.maxGuestPendingTransactionLimit
         );
     }
+  
+    function initialize() initializer public {
+        init();
+    }
 
-    function initialize() initializer public {}
+    function init() internal {
+        limits = BridgeLimits(10*10**18, 
+                              100*10**18, 
+                              200*10**18, 
+                              50*10**18, 
+                              400*10**18, 
+                              10*10**18,
+                              100*10**18,
+                              200*10**18,
+                              50*10**18,
+                              400*10**18
+                              );
+      
+        emit SetNewLimits(
+          limits.minHostTransactionValue, 
+          limits.maxHostTransactionValue, 
+          limits.dayHostMaxLimit,
+          limits.dayHostMaxLimitForOneAddress,
+          limits.maxHostPendingTransactionLimit,
+          limits.minGuestTransactionValue,
+          limits.maxGuestTransactionValue,
+          limits.dayGuestMaxLimit,
+          limits.dayGuestMaxLimitForOneAddress,
+          limits.maxGuestPendingTransactionLimit 
+        );
+    }
 }

@@ -12,8 +12,6 @@ contract ILimits {
     uint dayGuestMaxLimit,
     uint dayGuestMaxLimitForOneAddress,
     uint maxGuestPendingTransactionLimit) external;
-
-    function init() external;
     
     function getLimits() external view returns 
     (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint);
