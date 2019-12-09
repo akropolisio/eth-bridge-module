@@ -49,29 +49,34 @@ contract Limits is ILimits {
     uint maxGuestTransactionValue,
     uint dayGuestMaxLimit,
     uint dayGuestMaxLimitForOneAddress,
-    uint maxGuestPendingTransactionLimit) public {
-      
-    }
+    uint maxGuestPendingTransactionLimit) external {
+        limits.minHostTransactionValue = minHostTransactionValue;
+        limits.maxHostTransactionValue = maxHostTransactionValue;
+        limits.dayHostMaxLimit = dayHostMaxLimit;
+        limits.dayHostMaxLimitForOneAddress = dayHostMaxLimitForOneAddress;
+        limits.maxHostPendingTransactionLimit = maxHostPendingTransactionLimit;
 
-    /*limit getter */
-    function getLimits() public view returns 
-    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
-        return (
-          limits.minHostTransactionValue,
-          limits.maxHostTransactionValue,
+        limits.minGuestTransactionValue = minGuestTransactionValue;
+        limits.maxGuestTransactionValue = maxGuestTransactionValue;
+        limits.dayGuestMaxLimit = dayGuestMaxLimit;
+        limits.dayGuestMaxLimitForOneAddress = dayGuestMaxLimitForOneAddress;
+        limits.maxGuestPendingTransactionLimit = maxGuestPendingTransactionLimit;
+
+        emit SetNewLimits(
+          limits.minHostTransactionValue, 
+          limits.maxHostTransactionValue, 
           limits.dayHostMaxLimit,
           limits.dayHostMaxLimitForOneAddress,
           limits.maxHostPendingTransactionLimit,
-        //ETH Limits
           limits.minGuestTransactionValue,
           limits.maxGuestTransactionValue,
           limits.dayGuestMaxLimit,
           limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit
+          limits.maxGuestPendingTransactionLimit 
         );
     }
 
-    function init() internal {
+    function init() external {
         limits.minHostTransactionValue = 10*10**18;
         limits.maxHostTransactionValue = 100*10**18;
         limits.dayHostMaxLimit = 200*10**18;
@@ -95,6 +100,24 @@ contract Limits is ILimits {
           limits.dayGuestMaxLimit,
           limits.dayGuestMaxLimitForOneAddress,
           limits.maxGuestPendingTransactionLimit 
+        );
+    }
+
+    /*limit getter */
+    function getLimits() external view returns 
+    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
+        return (
+          limits.minHostTransactionValue,
+          limits.maxHostTransactionValue,
+          limits.dayHostMaxLimit,
+          limits.dayHostMaxLimitForOneAddress,
+          limits.maxHostPendingTransactionLimit,
+        //ETH Limits
+          limits.minGuestTransactionValue,
+          limits.maxGuestTransactionValue,
+          limits.dayGuestMaxLimit,
+          limits.dayGuestMaxLimitForOneAddress,
+          limits.maxGuestPendingTransactionLimit
         );
     }
 }
