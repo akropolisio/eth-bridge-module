@@ -1,4 +1,3 @@
-import { BigNumber } from "bignumber.js";
 import { TestDateTimeInstance } from "../../types/truffle-contracts/index";
 import EVMRevert from "../helpers/EVMRevert";
 
@@ -6,7 +5,10 @@ import EVMRevert from "../helpers/EVMRevert";
 const { BN, constants, expectEvent, shouldFail } = require("@openzeppelin/test-helpers");
 
 // tslint:disable-next-line:no-var-requires
-require("chai").use(require("chai-as-promised")).should();
+//require("chai").use(require("chai-as-promised")).should();
+
+var should = require("chai").should;
+var expect = require("chai").expect;
 
 // tslint:disable-next-line:variable-name
 const testDateTimeMock = artifacts.require("TestDateTime");
@@ -19,17 +21,17 @@ contract("---------- Test isLeapYear ---------- BokkyPooBahsDateTimeContract", a
     });
 
     it("(2000, 5, 24, 1, 2, 3) is a leap year", async () => {
-        const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 5, 24, 1, 2, 3);
+        const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 5, 24, 1, 2, 3);
         (await testDateTime.isLeapYear(timestamp)).should.be.true;
     });
 
     it("(2100, 5, 24, 1, 2, 3) is a leap year", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2100, 5, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2100, 5, 24, 1, 2, 3);
       (await testDateTime.isLeapYear(timestamp)).should.be.false;
     });
   
     it("(2104, 5, 24, 1, 2, 3) is a leap year", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2104, 5, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2104, 5, 24, 1, 2, 3);
       (await testDateTime.isLeapYear(timestamp)).should.be.true;
     });
 });
@@ -154,17 +156,17 @@ contract("---------- Test isWeekDay ---------- BokkyPooBahsDateTimeContract", as
   });
 
   it("(2018, 5, 24, 1, 2, 3) is a week day", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
       (await testDateTime.isWeekDay(timestamp)).should.be.true;
   });
 
   it("(2018, 5, 25, 1, 2, 3) is a week day", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 25, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 25, 1, 2, 3);
     (await testDateTime.isWeekDay(timestamp)).should.be.true;
   });
   
   it("(2018, 5, 26, 1, 2, 3) is a not week day", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
     (await testDateTime.isWeekDay(timestamp)).should.be.false;
   });
 });
@@ -177,22 +179,22 @@ contract("---------- Test isWeekEnd ---------- BokkyPooBahsDateTimeContract", as
   });
 
   it("(2018, 5, 24, 1, 2, 3) is a not a week end", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
       (await testDateTime.isWeekEnd(timestamp)).should.be.false;
   });
 
   it("(2018, 5, 25, 1, 2, 3) is a not a week end", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 25, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 25, 1, 2, 3);
     (await testDateTime.isWeekEnd(timestamp)).should.be.false;
   });
   
   it("(2018, 5, 26, 1, 2, 3) is a week end", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
     (await testDateTime.isWeekEnd(timestamp)).should.be.true;
   });
 
   it("(2018, 5, 27, 1, 2, 3) is a week end", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 27, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 27, 1, 2, 3);
     (await testDateTime.isWeekEnd(timestamp)).should.be.true;
   });
 });
@@ -205,67 +207,67 @@ contract("---------- Test getDaysInMonth ---------- BokkyPooBahsDateTimeContract
   });
 
   it("(2000, 1, 24, 1, 2, 3) has 31 days", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 1, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 1, 24, 1, 2, 3);
       (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 
   it("(2000, 2, 24, 1, 2, 3) has 29 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 2, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 2, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(29);
   });
   
   it("(2001, 2, 24, 1, 2, 3) has 28 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2001, 2, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2001, 2, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(28);
   });
 
   it("(2000, 3, 24, 1, 2, 3) has 31 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 3, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 3, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 
   it("(2000, 4, 24, 1, 2, 3) has 30 days", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 4, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 4, 24, 1, 2, 3);
       (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(30);
   });
 
   it("(2000, 5, 24, 1, 2, 3) has 31 days", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 5, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 5, 24, 1, 2, 3);
       (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
   
   it("(2000, 6, 24, 1, 2, 3) has 30 days", async () => {
-      const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 6, 24, 1, 2, 3);
+      const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 6, 24, 1, 2, 3);
       (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(30);
   });
 
   it("(2000, 7, 24, 1, 2, 3) has 31 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 7, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 7, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 
   it("(2000, 8, 24, 1, 2, 3) has 31 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 8, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 8, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 
   it("(2000, 9, 24, 1, 2, 3) has 30 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 9, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 9, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(30);
   });
 
   it("(2000, 10, 24, 1, 2, 3) has 31 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 10, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 10, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 
   it("(2000, 11, 24, 1, 2, 3) has 30 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 11, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 11, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(30);
   });
 
   it("(2000, 12, 24, 1, 2, 3) has 31 days", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 12, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 12, 24, 1, 2, 3);
     (await testDateTime.getDaysInMonth(timestamp)).toNumber().should.equal(31);
   });
 });
@@ -339,22 +341,22 @@ contract("--------- Test getDayOfWeek ---------- BokkyPooBahsDateTimeContract", 
   });
    
   it("(2018, 5, 21, 1, 2, 3) is 1 Monday", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 21, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 21, 1, 2, 3);
     (await testDateTime.getDayOfWeek(timestamp)).toNumber().should.equal(1);
   });
 
   it("(2018, 5, 24, 1, 2, 3) is 4 Thursday", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 24, 1, 2, 3);
     (await testDateTime.getDayOfWeek(timestamp)).toNumber().should.equal(4);
   });
 
   it("(2018, 5, 26, 1, 2, 3) is 6 Saturday", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 26, 1, 2, 3);
     (await testDateTime.getDayOfWeek(timestamp)).toNumber().should.equal(6);
   });
 
   it("(2018, 5, 27, 1, 2, 3) is 7 Sunday", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 5, 27, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 5, 27, 1, 2, 3);
     (await testDateTime.getDayOfWeek(timestamp)).toNumber().should.equal(7);
   });
 
@@ -362,7 +364,7 @@ contract("--------- Test getDayOfWeek ---------- BokkyPooBahsDateTimeContract", 
 
 contract("---------- Test get* ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
   let testDateTime: TestDateTimeInstance;
-  let timestamp: BigNumber
+  let timestamp: BN
   beforeEach(async () => {
     testDateTime = await testDateTimeMock.new();
     timestamp = await testDateTime.timestampFromDateTime(2018, 5, 21, 1, 2, 3);
@@ -406,60 +408,60 @@ contract("---------- Test add{Years|Months|Days|Hours|Minutes|Seconds} ---------
   });
 
   it("(2000, 2, 29, 1, 2, 3) + 3 years is 2003/02/28 01:02:03", async () => {
-    const timestamp: BigNumber = (await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3));
-    const newTimestamp: BigNumber = await testDateTime.addYears(timestamp, 3);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2003, 2, 28, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = (await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3));
+    const newTimestamp: BN = await testDateTime.addYears(timestamp, 3);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2003, 2, 28, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2003, 2, 28, 1, 2, 3) + 30 years is 2048/12/31 02:03:04", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 12, 31, 2, 3, 4);
-    const newTimestamp: BigNumber = await testDateTime.addYears(timestamp, 30);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2048, 12, 31, 2, 3, 4);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 12, 31, 2, 3, 4);
+    const newTimestamp: BN = await testDateTime.addYears(timestamp, 30);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2048, 12, 31, 2, 3, 4);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 5, 27, 1, 2, 3) + 37 months is 2003/02/28 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 1, 31, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.addMonths(timestamp, 37);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2003, 2, 28, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 1, 31, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.addMonths(timestamp, 37);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2003, 2, 28, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 5, 27, 1, 2, 3) + 362 months is 2049/02/01 02:03:04", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 12, 1, 2, 3, 4);
-    const newTimestamp: BigNumber = await testDateTime.addMonths(timestamp, 362);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2049, 2, 1, 2, 3, 4);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 12, 1, 2, 3, 4);
+    const newTimestamp: BN = await testDateTime.addMonths(timestamp, 362);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2049, 2, 1, 2, 3, 4);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 12, 31, 2, 3, 4) + 37,532 days is 2119/11/05 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.addDays(timestamp, 37532);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2119, 11, 5, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.addDays(timestamp, 37532);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2119, 11, 5, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2000, 1, 31, 1, 2, 3) + 900,768 hours is 2119/11/05 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.addHours(timestamp, 900768);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2119, 11, 5, 1, 2, 3);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.addHours(timestamp, 900768);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2119, 11, 5, 1, 2, 3);
     
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 12, 1, 2, 3, 4) + 781,920 minutes is 2018/07/28 01:02:03", async () => {
     const timestamp = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
     const newTimestamp = await testDateTime.addMinutes(timestamp, 781920);
     const expectedTimestamp = await testDateTime.timestampFromDateTime(2018, 7, 28, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2017, 1, 31, 1, 2, 3) + 461,548,800 seconds is 2031/09/17 01:02:03", async () => {
     const timestamp = await testDateTime.timestampFromDateTime(2017, 1, 31, 1, 2, 3);
     const newTimestamp = await testDateTime.addSeconds(timestamp, "461548800");
     const expectedTimestamp = await testDateTime.timestampFromDateTime(2031, 9, 17, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 });
 
@@ -472,67 +474,67 @@ contract("---------- Test sub{Years|Months|Days|Hours|Minutes|Seconds} ---------
   });
 
   it("(2000, 2, 29, 1, 2, 3) - 3 years is 1997/02/28 01:02:03", async () => {
-    const timestamp: BigNumber = (await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3));
-    const newTimestamp: BigNumber = await testDateTime.subYears(timestamp, 3);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1997, 2, 28, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = (await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3));
+    const newTimestamp: BN = await testDateTime.subYears(timestamp, 3);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(1997, 2, 28, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2000, 2, 29, 1, 2, 3) - 37 months is 1997/01/29 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.subMonths(timestamp, 37);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1997, 1, 29, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2000, 2, 29, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.subMonths(timestamp, 37);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(1997, 1, 29, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2013, 1, 1, 1, 2, 3) - 3,756 days is 2002/09/20 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.subDays(timestamp, 3756);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.subDays(timestamp, 3756);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2013, 1, 1, 1, 2, 3) - 3,756 * 24 hours is 2002/09/20 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.subHours(timestamp, 3756 * 24);
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2013, 1, 1, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.subHours(timestamp, 3756 * 24);
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(2002, 9, 20, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2015, 7, 15, 1, 2, 3) - 223,776 hours is 1990/01/03 01:02:03", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2015, 7, 15, 1, 2, 3);
-    const newTimestamp: BigNumber = await testDateTime.subHours(timestamp, "223776");
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1990, 1, 3, 1, 2, 3);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2015, 7, 15, 1, 2, 3);
+    const newTimestamp: BN = await testDateTime.subHours(timestamp, "223776");
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(1990, 1, 3, 1, 2, 3);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 3, 1, 2, 3, 4) - 21,600,000 minutes is 1977/02/04 02:03:04", async () => {
-    const timestamp: BigNumber = await testDateTime.timestampFromDateTime(2018, 3, 1, 2, 3, 4);
-    const newTimestamp: BigNumber = await testDateTime.subMinutes(timestamp, "21600000");
-    const expectedTimestamp: BigNumber = await testDateTime.timestampFromDateTime(1977, 2, 4, 2, 3, 4);
+    const timestamp: BN = await testDateTime.timestampFromDateTime(2018, 3, 1, 2, 3, 4);
+    const newTimestamp: BN = await testDateTime.subMinutes(timestamp, "21600000");
+    const expectedTimestamp: BN = await testDateTime.timestampFromDateTime(1977, 2, 4, 2, 3, 4);
     
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2018, 3, 1, 2, 3, 4) - 21,600,000 minutes is 1977/02/04 02:03:04", async () => {
     const timestamp = await testDateTime.timestampFromDateTime(2018, 3, 1, 2, 3, 4);
     const newTimestamp = await testDateTime.subMinutes(timestamp, "21600000");
     const expectedTimestamp = await testDateTime.timestampFromDateTime(1977, 2, 4, 2, 3, 4);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 
   it("(2020, 3, 19, 3, 4, 5) - 788,227,200 seconds is 1995/03/28 03:04:05", async () => {
     const timestamp = await testDateTime.timestampFromDateTime(2020, 3, 19, 3, 4, 5);
     const newTimestamp = await testDateTime.subSeconds(timestamp, "788227200");
     const expectedTimestamp = await testDateTime.timestampFromDateTime(1995, 3, 28, 3, 4, 5);
-    newTimestamp.should.bignumber.equal(expectedTimestamp);
+    expect(newTimestamp).bignumber.equal(expectedTimestamp);
   });
 });
 
 contract("---------- Test diff{Years|Months|Days|Hours|Minutes|Seconds} ---------- BokkyPooBahsDateTimeContract", async ([_, owner, wallet1, wallet2, wallet3, wallet4, wallet5]) => {
   let testDateTime: TestDateTimeInstance;
-  let fromTimestamp: BigNumber;
-  let toTimestamp: BigNumber;
+  let fromTimestamp: BN;
+  let toTimestamp: BN;
 
   beforeEach(async () => {
     testDateTime = await testDateTimeMock.new();

@@ -1,6 +1,5 @@
 import {LimitsInstance, LimitsContract } from "../../types/truffle-contracts/index";
 import EVMRevert from "../helpers/EVMRevert";
-import BigNumber from "bignumber.js";
 
 // tslint:disable-next-line:no-var-requires
 const { BN, constants, expectEvent, shouldFail } = require("@openzeppelin/test-helpers");
@@ -23,7 +22,7 @@ contract("BridgeLimits", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, 
 
         await limits.setLimits(10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
 
-        let limitValue = new Array<BigNumber>(10);
+        let limitValue = new Array<BN>(10);
         limitValue = await limits.getLimits();
         
         limitValue[0].toNumber().should.be.equal(10); 
