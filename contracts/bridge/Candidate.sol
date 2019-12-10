@@ -8,7 +8,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
  add contructor for initialize
 */
 
-contract Candidate is ICandidate {
+contract Candidate is ICandidate, Initializable {
 
     struct ValidatorsListProposal {
         bytes32 proposalID;
@@ -43,7 +43,7 @@ contract Candidate is ICandidate {
         guestCandidates[candidates[host].guest] = false;
         emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);
     }
-
+    
     function createCandidatesValidatorsProposal(address[] calldata hosts) external {
         require(hosts.length <= 10, "Host lenth is long");
 
@@ -76,6 +76,8 @@ contract Candidate is ICandidate {
         require(!guestCandidates[guest], "Guest is Exists");
         _;
     }
+
+    function initialize() initializer public {}
 
     function isCandidateExists(address host) public view returns(bool) {
         return candidates[host].isExists;
