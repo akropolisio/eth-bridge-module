@@ -21,6 +21,7 @@
         "@openzeppelin/contracts-ethereum-package": "^2.3.0",
         "@openzeppelin/test-helpers": "^0.5.3",
         "@openzeppelin/upgrades": "^2.5.3",
+        "@types/chai-as-promised": "^7.1.2",
         "@types/mocha": "^5.2.5",
         "@types/node": "^10.12.2",
         "bn.js": "^5.0.0",
