@@ -20,8 +20,26 @@ contract("Candidate", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wal
        candi.initialize(); 
     });
 
-    it("add candidate => ", async () => {
+    it("add candidate => true", async () => {
         await candi.addCandidate("0x6a8357ae0173737209af59152ee30a786dbade70", web3.utils.asciiToHex("32"));
         (await candi.isCandidateExists("0x6a8357ae0173737209af59152ee30a786dbade70")).should.be.equal(true);
+    });
+
+    it("remove candidate => false", async () => {
+        await candi.addCandidate("0x6a8357ae0173737209af59152ee30a786dbade70", web3.utils.asciiToHex("32"));
+        (await candi.isCandidateExists("0x6a8357ae0173737209af59152ee30a786dbade70")).should.be.equal(true);
+        await candi.removeCandidate("0x6a8357ae0173737209af59152ee30a786dbade70");
+        (await candi.isCandidateExists("0x6a8357ae0173737209af59152ee30a786dbade70")).should.be.equal(false);
+    });
+
+    it("proposal candidate => true ", async () => {
+        await candi.addCandidate("0x6a8357ae0173737209af59152ee30a786dbade70", web3.utils.asciiToHex("32"));
+        (await candi.isCandidateExists("0x6a8357ae0173737209af59152ee30a786dbade70")).should.be.equal(true);
+        await candi.createCandidatesValidatorsProposal(["0x6a8357ae0173737209af59152ee30a786dbade70"]);
+    });
+
+    it("proposal candidate => false", async () => {
+        (await candi.isCandidateExists("0x6a8357ae0173737209af59152ee30a786dbade70")).should.be.equal(false);
+        await candi.createCandidatesValidatorsProposal(["0x6a8357ae0173737209af59152ee30a786dbade70"]);
     });
 });

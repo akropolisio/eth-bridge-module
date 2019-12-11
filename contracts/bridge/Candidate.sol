@@ -54,16 +54,17 @@ contract Candidate is ICandidate, Initializable {
                 notHostExists = true;
             }
         }
-        require(notHostExists, "One or more host are not a candidate");
 
-        bytes32 proposalID = keccak256(abi.encodePacked(now));
-        ValidatorsListProposal memory v = ValidatorsListProposal(proposalID, hosts, true);
-        validatorsCandidatesPropoposals[proposalID] = v;
-        emit ProposalCandidatesValidatorsCreated(proposalID, hosts);
+        if (!notHostExists) {
+            bytes32 proposalID = keccak256(abi.encodePacked(now));
+            ValidatorsListProposal memory v = ValidatorsListProposal(proposalID, hosts, true);
+            validatorsCandidatesPropoposals[proposalID] = v;
+            emit ProposalCandidatesValidatorsCreated(proposalID, hosts);
+        }
     }
 
     modifier hostCandidateExists(address host) {
-        require(!candidates[host].isExists, "Host is not exists");
+        require(candidates[host].isExists, "Host is not exists");
         _;
     }
 
