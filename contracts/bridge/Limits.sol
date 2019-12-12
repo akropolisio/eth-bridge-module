@@ -78,8 +78,8 @@ contract Limits is ILimits, Initializable {
 
     /*limit getter */
     function getLimits() external view returns 
-    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
-        return (
+    (uint[10] memory) {
+        return ([
           parameters.minHostTransactionValue,
           parameters.maxHostTransactionValue,
           parameters.dayHostMaxLimit,
@@ -91,7 +91,7 @@ contract Limits is ILimits, Initializable {
           parameters.dayGuestMaxLimit,
           parameters.dayGuestMaxLimitForOneAddress,
           parameters.maxGuestPendingTransactionLimit
-        );
+        ]);
     }
   
     function initialize() initializer public {

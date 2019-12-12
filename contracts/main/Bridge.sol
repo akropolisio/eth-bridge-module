@@ -50,234 +50,259 @@ contract Bridge is Initializable, ValidatorsOperations {
     /**
      * @dev Allows to perform method by existing Validator
     */
-    /*modifier onlyExistingValidator(address _Validator) {
+    modifier onlyExistingValidator(address _Validator) {
         require(isExistValidator(_Validator), "address is not in Validator array");
          _;
     }
-    
+
     modifier checkMinMaxTransactionValue(uint value) {
-        require(value < limitsContract.limits.maxHostTransactionValue && value < limitsContract.limits.minHostTransactionValue, "Transaction value is too  small or large");
+        uint[10] memory limits = limitsContract.getLimits();
+
+        require(value < limits[0] && value < limits[1], "Transaction value is too  small or large");
         _;
     }
 
     modifier checkDayVolumeTransaction() {
-        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.dayHostMaxLimit) {
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[2]) {
             _;
-            _pauseBridgeByVolume();
+            statusContract.pauseBridgeByVolume();
         } else {
-            if (pauseBridgeByVolumeBool) {
-                _resumeBridgeByVolume();
+            if (statusContract.isPausedByBridgVolume()) {
+                statusContract.resumeBridgeByVolume();
             }
             _;
         }
     }
 
     modifier checkPendingDayVolumeTransaction() {
-        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits.maxGuestPendingTransactionLimit) {
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[4]) {
             _;
-            _pauseBridgeByVolume();
+            statusContract.pauseBridgeByVolume();
         } else {
-            if (pauseBridgeByVolume) {
-                _resumeBridgeByVolume();
+            if (statusContract.isPausedByBridgVolume()) {
+                statusContract.resumeBridgeByVolume();
             }
             _;
         }
     }
 
     modifier checkDayVolumeTransactionForAddress() {
-        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits.dayHostMaxLimitForOneAddress) {
+
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits[3]) {
              _;
-             _pausedByBridgeVolumeForAddress(msg.sender);
+             statusContract.pausedByBridgeVolumeForAddress(msg.sender);
         } else {
-            if (pauseAccountByVolume[msg.sender]) {
-                _resumedByBridgeVolumeForAddress(msg.sender);
+            if (statusContract.getStatusForAccount(msg.sender)) {
+                statusContract.resumedByBridgeVolumeForAddress(msg.sender);
             }
             _;
         }
-    }*/
+    }
+    
+    /*
+        check that message is valid
+    */
+    modifier validMessage(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) {
+         require((transferContract.isExistsMessage(messageID) && transferContract.getHost(messageID) == spender)
+                && (transferContract.getGuest(messageID) == guestAddress)
+                && (transferContract.getAvailableAmount(messageID) == availableAmount), "Data is not valid");
+         _;
+    }
+
+    modifier pendingMessage(bytes32 messageID) {
+        require(transferContract.isExistsMessage(messageID) && transferContract.getMessageStatus(messageID) == 0, "Message is not pending");
+        _;
+    }
+
+    modifier approvedMessage(bytes32 messageID) {
+        require(transferContract.isExistsMessage(messageID) && transferContract.getMessageStatus(messageID) == 2, "Message is not approved");
+         _;
+    }
+
+    modifier withdrawMessage(bytes32 messageID) {
+        require(transferContract.isExistsMessage(messageID) && transferContract.getMessageStatus(messageID) == 1, "Message is not approved");
+         _;
+    }
+
+    modifier cancelMessage(bytes32 messageID) {
+         require(transferContract.isExistsMessage(messageID) && transferContract.getMessageStatus(messageID) == 3, "Message is not canceled");
+        _;
+    }
+
+    modifier activeBridgeStatus() {
+        require(statusContract.getStatusBridge() == 0, "Bridge is stopped or paused");
+        _;
+    }
 
     /*
         public functions
     */
-    /*function setTransfer(uint amount, bytes32 guestAddress) public 
+    function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
     checkPendingDayVolumeTransaction()
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress() {
-       _addPendingVolumeByDate(amount);
-       _setTransfer(amount, guestAddress);
-    }*/
+       //_addPendingVolumeByDate(amount);
+       transferContract.setTransfer(amount, guestAddress);
+    }
 
     /*
         revert function
     */
-    
-    /*function revertTransfer(bytes32 messageID) public 
+    function revertTransfer(bytes32 messageID) public 
     activeBridgeStatus
     pendingMessage(messageID)  
     onlyManyValidators {
-        _revertTransfer(messageID);
-    }*/
+        transferContract.revertTransfer(messageID);
+    }
 
     /*
     * Approve finance by message ID when transfer pending
     */
-    /*function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
+    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
     activeBridgeStatus 
     validMessage(messageID, spender, guestAddress, availableAmount) 
     pendingMessage(messageID) 
     onlyManyValidators {
-       _approveTransfer(messageID, spender, guestAddress, availableAmount);
+       transferContract.approveTransfer(messageID, spender, guestAddress, availableAmount);
     }
-    */
-
+    
     /*
     * Confirm tranfer by message ID when transfer pending
     */
-    /*function confirmTransfer(bytes32 messageID) public 
+    function confirmTransfer(bytes32 messageID) public 
     activeBridgeStatus
     approvedMessage(messageID)  
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress()
     onlyManyValidators {
-        _confirmTransfer(messageID);
-        _addVolumeByMessageID(messageID);
+        transferContract.confirmTransfer(messageID);
+        //_addVolumeByMessageID(messageID);
     }
-    */
+    
     /*
     * Withdraw tranfer by message ID after approve from guest
     */
-    /*function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
     activeBridgeStatus
-    checkBalance(availableAmount)
     onlyManyValidators {
-        _withdrawTransfer(messageID, sender, recipient, availableAmount);
+        transferContract.withdrawTransfer(messageID, sender, recipient, availableAmount);
     }
-    */
+    
     /*
     * Confirm Withdraw tranfer by message ID after approve from guest
     */
-    /*function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
+    function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress()
     onlyManyValidators {
-        _confirmWithdrawTransfer(messageID);
+        transferContract.confirmWithdrawTransfer(messageID);
     }
-    */
+
     /*
     * Confirm Withdraw cancel by message ID after approve from guest
     */
-    
-    /*
+
     function confirmCancelTransfer(bytes32 messageID)  public 
     activeBridgeStatus 
     cancelMessage(messageID)  
     onlyManyValidators {
-       _confirmCancelTransfer(messageID);
+       transferContract.confirmCancelTransfer(messageID);
     }
-    */
-    /* Bridge Status Function */
-    /*
-    function startBridge() public 
-    stoppedOrPausedBridgeStatus 
-    onlyManyValidators {
-        _startBridge();
-    }
-    */
     
-    /*
-    function resumeBridge() public 
-    stoppedOrPausedBridgeStatus 
+    /* Bridge Status Function */
+    function startBridge() public 
     onlyManyValidators {
-        _resumeBridge();
+        statusContract.startBridge();
     }
-    */
-
-    /*
+    
+    function resumeBridge() public 
+    onlyManyValidators {
+        statusContract.resumeBridge();
+    }
+    
     function stopBridge() public 
     onlyManyValidators {
-        _stopBridge();
+        statusContract.stopBridge();
     }
     
     function pauseBridge() public 
     onlyManyValidators {
-        _pauseBridge();
+        statusContract.pauseBridge();
     }
 
     function setPausedStatusForGuestAddress(bytes32 sender) 
     onlyManyValidators
     public {
-       _setPausedStatusForGuestAddress(sender);
+       statusContract.setPausedStatusForGuestAddress(sender);
     }
 
     function setResumedStatusForGuestAddress(bytes32 sender) 
     onlyManyValidators
     public {
-       _setResumedStatusForGuestAddress(sender);
+       statusContract.setResumedStatusForGuestAddress(sender);
     }
-    */
 
     /*
      DAO Parameters
     */
-    /*function createProposal(uint[10] memory parameters) 
+    function createProposal(uint[10] memory parameters) 
     onlyExistingValidator(msg.sender)
     public  {
-        _createProposal(parameters);    
+        daoContract.createProposal(parameters);  
     }
 
     function approvedNewProposal(bytes32 proposalID)
     onlyManyValidators
     public
     {
-        _approvedNewProposal(limits, proposalID);
-    }*/
+        daoContract.approvedNewProposal(proposalID);
+    }
 
     /*
         validatorsProposal
     */
-    /*
     function createCandidatesValidatorsProposal(address[] memory hosts)
     onlyExistingValidator(msg.sender)
     public {
-        //_createCandidatesValidatorsProposal(hosts);
+        candidateContract.createCandidatesValidatorsProposal(hosts);
     }
 
     function approveNewValidatorsList(bytes32 proposalID)
     onlyManyValidators
     public {
-        ValidatorsListProposal storage v = validatorsCandidatesPropoposals[proposalID];
-
-        address[] memory hosts = v.hosts;
-
-        changeValidatorsWithHowMany(hosts, hosts.length*6/10);
-        
+        address[] memory hosts = candidateContract.getValidatorsListByProposalID(proposalID);
+        changeValidatorsWithHowMany(hosts, hosts.length*6/10);        
     }
 
-    function addCandidate(address host, bytes32 guest) public notHostCandidateExists(host) notGuestCandidateExists(guest) existValidator(msg.sender)
+    function addCandidate(address host, bytes32 guest) public  existValidator(msg.sender)
     {
-        //_addCandidate(host, guest);
+        candidateContract.addCandidate(host, guest);
     }
 
-    function removeCandidate(address host) public hostCandidateExists(host) existValidator(msg.sender) {
-        //_removeCandidate(host);
+    function removeCandidate(address host) public existValidator(msg.sender) {
+        candidateContract.removeCandidate(host);
     }
-    */
+
     /*
      * Internal functions
     */
-
-    /*function _addVolumeByMessageID(bytes32 messageID) internal {
-        Message storage message = messages[messageID];
+    function _addVolumeByMessageID(bytes32 messageID) internal {
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
-        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
-        currentDayVolumeForAddress[dateID][message.spender] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
+        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(transferContract.getAvailableAmount(messageID));
+        currentDayVolumeForAddress[dateID][transferContract.getHost(messageID)] = currentDayVolumeForAddress[dateID][transferContract.getHost(messageID)].add(transferContract.getAvailableAmount(messageID));
     }  
 
     function _addPendingVolumeByDate(uint256 availableAmount) internal {
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
-    }*/
+    }
 }

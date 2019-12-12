@@ -63,6 +63,11 @@ contract Candidate is ICandidate, Initializable {
         }
     }
 
+    function getValidatorsListByProposalID(bytes32 proposalID)  external view returns (address[] memory) {
+        ValidatorsListProposal memory v = validatorsCandidatesPropoposals[proposalID];
+        return v.hosts;
+    }
+
     modifier hostCandidateExists(address host) {
         require(candidates[host].isExists, "Host is not exists");
         _;

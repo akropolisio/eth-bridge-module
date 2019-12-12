@@ -78,23 +78,30 @@ contract Status is IStatus, Initializable {
 
     /* Bridge Status Function */
     function startBridge() external 
+    stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted(keccak256(abi.encodePacked(now)));
     }
 
     function resumeBridge() external
+    stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeResumed(keccak256(abi.encodePacked(now)));
     }
 
-    function stopBridge() external {
+    function stopBridge() external 
+    activeBridgeStatus
+    {
+    
         bridgeStatus = BridgeStatus.STOPPED;
         emit BridgeStopped(keccak256(abi.encodePacked(now)));
     }
 
-    function pauseBridge() external {
+    function pauseBridge() external 
+    activeBridgeStatus
+    {
         bridgeStatus = BridgeStatus.PAUSED;
         emit BridgePaused(keccak256(abi.encodePacked(now)));
     }
@@ -103,9 +110,13 @@ contract Status is IStatus, Initializable {
         return uint(bridgeStatus);
     }
 
-    function getStatusForAccount(address account) external view returns(uint) {
-        return pauseAccountByVolume[account] ? 1 : 0;
+    function getStatusForAccount(address account) external view returns(bool) {
+        return pauseAccountByVolume[account] ? true : false;
     }
 
     function initialize() initializer public {}
+    
+    function isPausedByBridgVolume() public view returns(bool) {
+        return pauseBridgeByVolumeBool;
+    }
 }

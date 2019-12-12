@@ -14,5 +14,6 @@ contract IStatus {
     function stopBridge() external;
     function pauseBridge() external;
     function getStatusBridge() external view returns(uint);
-    function getStatusForAccount(address account) external view returns(uint);
+    function getStatusForAccount(address account) external view returns(bool);
+    function isPausedByBridgVolume() public view returns(bool);
 }

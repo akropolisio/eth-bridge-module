@@ -128,7 +128,9 @@ contract Transfers is ITransfers, Initializable {
         emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) external {
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) 
+    checkBalance(availableAmount)
+    external {
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
         messages[messageID] = message;
@@ -154,7 +156,28 @@ contract Transfers is ITransfers, Initializable {
         token = _token;
     }
 
+    function getMessageStatus(bytes32 messageID) public view returns (uint) {
+        return uint(messages[messageID].status);
+    }
+    
+    function isExistsMessage(bytes32 messageID) public view returns (bool) {
+        return messages[messageID].isExists;
+    }
+
+    function getHost(bytes32 messageID) public view returns (address) {
+        return messages[messageID].spender;
+    }
+
+     function getGuest(bytes32 messageID) public view returns (bytes32) {
+        return messages[messageID].guestAddress;
+    }
+
+    function getAvailableAmount(bytes32 messageID) public view returns (uint) {
+        return messages[messageID].availableAmount;
+    }
+
     function _getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
         return messagesBySender[sender][0];
     }
+
 }

@@ -14,7 +14,5 @@ contract ILimits {
     uint maxGuestPendingTransactionLimit) external;
     
     function getLimits() external view returns 
-    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint);
-
-    
+    (uint[10] memory); 
 }

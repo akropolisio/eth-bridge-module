@@ -7,4 +7,5 @@ contract ICandidate {
     function createCandidatesValidatorsProposal(address[] calldata hosts) external;
     function isCandidateExists(address host) public view returns(bool);
     function getGuestAddress(address host) public view returns(bytes32);
+    function getValidatorsListByProposalID(bytes32 proposalID)  external view returns (address[] memory);
 }
