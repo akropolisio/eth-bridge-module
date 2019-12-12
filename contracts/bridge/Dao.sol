@@ -42,6 +42,7 @@ contract Dao is IDao, Initializable {
 
     /** Proposals **/
     mapping(bytes32 => Proposal) internal proposals;
+    bytes32[] proposalsArray;
 
     mapping(bytes32 => uint) internal proposalsCountByDate;
 
@@ -54,6 +55,8 @@ contract Dao is IDao, Initializable {
         bytes32 proposalID = keccak256(abi.encodePacked(now));
         Proposal memory proposal = Proposal(proposalID, ProposalStatus.PENDING, msg.sender, now, parameters, true); 
         proposals[proposalID] = proposal;
+        proposalsArray.push(proposalID);
+
         proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] = proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))]+1;
 
         emit ProposalCreated(proposalID, msg.sender, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
@@ -82,5 +85,9 @@ contract Dao is IDao, Initializable {
 
     function initialize(ILimits _limits) initializer public {
         limits = _limits;
+    }
+
+    function _getFirstMessageIDByAddress() public view returns (bytes32) {
+        return proposalsArray[0];
     }
 }

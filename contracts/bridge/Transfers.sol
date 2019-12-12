@@ -154,7 +154,7 @@ contract Transfers is ITransfers, Initializable {
         token = _token;
     }
 
-    function getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
+    function _getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
         return messagesBySender[sender][0];
     }
 }

@@ -370,6 +370,10 @@ export interface DaoInstance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  _getFirstMessageIDByAddress(
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
 }
 
 export interface ERC20MockInstance extends Truffle.ContractInstance {
@@ -1836,7 +1840,7 @@ export interface TransfersInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
-  getFirstMessageIDByAddress(
+  _getFirstMessageIDByAddress(
     sender: string | BN,
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
