@@ -210,7 +210,6 @@ contract Bridge is Initializable, ValidatorsOperations {
     /*
     * Confirm Withdraw cancel by message ID after approve from guest
     */
-
     function confirmCancelTransfer(bytes32 messageID)  public 
     activeBridgeStatus 
     cancelMessage(messageID)  
