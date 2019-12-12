@@ -3,8 +3,9 @@ pragma solidity ^0.5.12;
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../interfaces/IStatus.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
-contract Status is IStatus, Initializable {
+contract Status is IStatus, Ownable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -45,39 +46,40 @@ contract Status is IStatus, Initializable {
         _;
     }
 
-    function pauseBridgeByVolume() external {
+    function pauseBridgeByVolume() external onlyOwner {
         pauseBridgeByVolumeBool = true;
         bridgeStatus = BridgeStatus.PAUSED_BY_VOLUME;
         emit BridgePausedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function resumeBridgeByVolume() external {
+    function resumeBridgeByVolume() external onlyOwner {
         pauseBridgeByVolumeBool = false;
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function pausedByBridgeVolumeForAddress(address sender) external {
+    function pausedByBridgeVolumeForAddress(address sender) external onlyOwner {
         emit HostAccountPausedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
         pauseAccountByVolume[sender] = true;
     }
 
-    function resumedByBridgeVolumeForAddress(address sender) external {
+    function resumedByBridgeVolumeForAddress(address sender) external onlyOwner {
         pauseAccountByVolume[sender] = false;
         emit HostAccountResumedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
     }
 
-    function setPausedStatusForGuestAddress(bytes32 sender) external {
+    function setPausedStatusForGuestAddress(bytes32 sender) external onlyOwner {
        emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
-    function setResumedStatusForGuestAddress(bytes32 sender) external
+    function setResumedStatusForGuestAddress(bytes32 sender) onlyOwner external
     {
        emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
     /* Bridge Status Function */
     function startBridge() external 
+    onlyOwner
     stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
@@ -85,6 +87,7 @@ contract Status is IStatus, Initializable {
     }
 
     function resumeBridge() external
+    onlyOwner
     stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
@@ -92,6 +95,7 @@ contract Status is IStatus, Initializable {
     }
 
     function stopBridge() external 
+    onlyOwner
     activeBridgeStatus
     {
     
@@ -100,6 +104,7 @@ contract Status is IStatus, Initializable {
     }
 
     function pauseBridge() external 
+    onlyOwner
     activeBridgeStatus
     {
         bridgeStatus = BridgeStatus.PAUSED;
@@ -114,7 +119,9 @@ contract Status is IStatus, Initializable {
         return pauseAccountByVolume[account] ? true : false;
     }
 
-    function initialize() initializer public {}
+    function init() initializer public {
+        Ownable.initialize(msg.sender);
+    }
     
     function isPausedByBridgVolume() public view returns(bool) {
         return pauseBridgeByVolumeBool;

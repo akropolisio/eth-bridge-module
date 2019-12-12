@@ -3,13 +3,13 @@ pragma solidity ^0.5.12;
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../interfaces/ILimits.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
 /*
  add contructor for initialize
 */
 
-contract Limits is ILimits, Initializable {
+contract Limits is ILimits, Ownable {
 
      struct BridgeLimits {
         //ETH Limits
@@ -49,7 +49,9 @@ contract Limits is ILimits, Initializable {
     uint maxGuestTransactionValue,
     uint dayGuestMaxLimit,
     uint dayGuestMaxLimitForOneAddress,
-    uint maxGuestPendingTransactionLimit) external {
+    uint maxGuestPendingTransactionLimit) external 
+    onlyOwner
+    {
         parameters.minHostTransactionValue = minHostTransactionValue;
         parameters.maxHostTransactionValue = maxHostTransactionValue;
         parameters.dayHostMaxLimit = dayHostMaxLimit;
@@ -94,11 +96,12 @@ contract Limits is ILimits, Initializable {
         ]);
     }
   
-    function initialize() initializer public {
-        init();
+    function init() initializer public {
+        Ownable.initialize(msg.sender);
+        _init();
     }
 
-    function init() internal {
+    function _init() internal {
         parameters = BridgeLimits(10*10**18, 
                               100*10**18, 
                               200*10**18, 

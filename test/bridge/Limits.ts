@@ -14,7 +14,7 @@ contract("BridgeLimits", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, 
 
     beforeEach(async function() {
        limits = await BridgeLimits.new();  
-       limits.initialize(); 
+       limits.init(); 
 
     });
 

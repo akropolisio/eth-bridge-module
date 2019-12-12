@@ -18,14 +18,14 @@ contract("Dao", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wallet5])
 
     beforeEach(async function() {
         limits = await BridgeLimits.new();  
-        await limits.initialize(); 
+        await limits.init({from: owner}); 
         dao = await DaoContract.new();
-        await dao.initialize(limits.address);
+        await dao.init(limits.address, {from: owner});
      });
 
      it("get init parameters", async () => {
 
-        await limits.setLimits(10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
+        await limits.setLimits(10, 10, 10, 10, 10, 10, 10, 10, 10, 10, {from: owner});
 
         let limitValue = new Array<BN>(10);
         limitValue = await limits.getLimits();
@@ -43,28 +43,15 @@ contract("Dao", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wallet5])
      });
 
      it("set proposal parameters", async () => {
-
-        await limits.setLimits(10, 10, 10, 10, 10, 10, 10, 10, 10, 10);
-
-        let limitValue = new Array<BN>(10);
-        limitValue = await limits.getLimits();
         
-        limitValue[0].toNumber().should.be.equal(10); 
-        limitValue[1].toNumber().should.be.equal(10);
-        limitValue[2].toNumber().should.be.equal(10);
-        limitValue[3].toNumber().should.be.equal(10);
-        limitValue[4].toNumber().should.be.equal(10);
-        limitValue[5].toNumber().should.be.equal(10);
-        limitValue[6].toNumber().should.be.equal(10);
-        limitValue[7].toNumber().should.be.equal(10);
-        limitValue[8].toNumber().should.be.equal(10);
-        limitValue[9].toNumber().should.be.equal(10);
+        
+        await limits.transferOwnership(dao.address, {from:owner});
 
-        await dao.createProposal([100, 100, 100, 100, 100, 100, 100, 100, 100, 100]);
+        await dao.createProposal([100, 100, 100, 100, 100, 100, 100, 100, 100, 100], {from: owner});
 
-        await dao.approvedNewProposal(await dao._getFirstMessageIDByAddress());
+        await dao.approvedNewProposal(await dao._getFirstMessageIDByAddress(), {from: owner});
 
-        limitValue = await limits.getLimits();
+        let limitValue = await limits.getLimits();
 
         limitValue[0].toNumber().should.be.equal(100); 
         limitValue[1].toNumber().should.be.equal(100);

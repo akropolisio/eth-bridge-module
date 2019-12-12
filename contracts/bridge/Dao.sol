@@ -5,10 +5,10 @@ import "../bridge/Limits.sol";
 
 import "../interfaces/ILimits.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
-
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 import "../interfaces/IDao.sol";
 
-contract Dao is IDao, Initializable {
+contract Dao is IDao, Ownable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
     /*
@@ -51,7 +51,7 @@ contract Dao is IDao, Initializable {
         _;
     }
 
-    function createProposal(uint[10] calldata parameters) checkProposalByDate external {   
+    function createProposal(uint[10] calldata parameters) checkProposalByDate external onlyOwner {   
         bytes32 proposalID = keccak256(abi.encodePacked(now));
         Proposal memory proposal = Proposal(proposalID, ProposalStatus.PENDING, msg.sender, now, parameters, true); 
         proposals[proposalID] = proposal;
@@ -62,7 +62,7 @@ contract Dao is IDao, Initializable {
         emit ProposalCreated(proposalID, msg.sender, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
     }
 
-    function approvedNewProposal(bytes32 proposalID) external {
+    function approvedNewProposal(bytes32 proposalID) external onlyOwner {
         Proposal memory proposal = proposals[proposalID];
 
         proposal.status = ProposalStatus.APPROVED;
@@ -83,7 +83,8 @@ contract Dao is IDao, Initializable {
         emit ProposalApproved(proposalID);
     }
 
-    function initialize(ILimits _limits) initializer public {
+    function init(ILimits _limits) initializer public {
+        Ownable.initialize(msg.sender);
         limits = _limits;
     }
 

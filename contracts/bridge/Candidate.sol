@@ -3,12 +3,13 @@ pragma solidity ^0.5.12;
 import "../interfaces/ICandidate.sol";
 import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
 /*
  add contructor for initialize
 */
 
-contract Candidate is ICandidate, Initializable {
+contract Candidate is ICandidate, Ownable {
 
     struct ValidatorsListProposal {
         bytes32 proposalID;
@@ -31,20 +32,20 @@ contract Candidate is ICandidate, Initializable {
     event RemoveCandidateValidator(bytes32 messageID, address host, bytes32 guest);
     event ProposalCandidatesValidatorsCreated(bytes32 messageID, address[] hosts);
 
-    function addCandidate(address host, bytes32 guest) external notHostCandidateExists(host) notGuestCandidateExists(guest)  {
+    function addCandidate(address host, bytes32 guest) external notHostCandidateExists(host) notGuestCandidateExists(guest) onlyOwner {
         CandidateValidator memory c = CandidateValidator(host, guest, true);
         candidates[host] = c;
         guestCandidates[guest] = true;
         emit AddCandidateValidator(keccak256(abi.encodePacked(now)), host, guest);
     }
 
-    function removeCandidate(address host) external hostCandidateExists(host) {
+    function removeCandidate(address host) external hostCandidateExists(host) onlyOwner {
         candidates[host].isExists = false;
         guestCandidates[candidates[host].guest] = false;
         emit RemoveCandidateValidator(keccak256(abi.encodePacked(now)), host, candidates[host].guest);
     }
     
-    function createCandidatesValidatorsProposal(address[] calldata hosts) external {
+    function createCandidatesValidatorsProposal(address[] calldata hosts) external onlyOwner {
         require(hosts.length <= 10, "Host lenth is long");
 
         bool notHostExists = false;
@@ -83,7 +84,9 @@ contract Candidate is ICandidate, Initializable {
         _;
     }
 
-    function initialize() initializer public {}
+    function initialize() initializer public {
+        Ownable.initialize(msg.sender);
+    }
 
     function isCandidateExists(address host) public view returns(bool) {
         return candidates[host].isExists;

@@ -17,7 +17,7 @@ contract("Transfers", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wal
     beforeEach(async function() {
         erc20 = await ERC20Contract.new(owner, 100000000000);
         transfer = await TransferContract.new();  
-        await transfer.initialize(erc20.address);
+        await transfer.init(erc20.address, {from: owner});
         await erc20.approve(transfer.address, 100000000000, {from: owner}); 
     });
 
@@ -27,18 +27,18 @@ contract("Transfers", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wal
 
     it("revertTransfer => true", async () => {
         await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
-        await transfer.revertTransfer(await transfer._getFirstMessageIDByAddress(owner));
+        await transfer.revertTransfer(await transfer._getFirstMessageIDByAddress(owner), {from: owner});
     });
 
     it("approveTransfer => true", async () => {
         await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
-        await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10);
+        await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10, {from: owner});
     });
 
     it("confirmTransfer => true", async () => {
         await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
-        await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10);
-        await transfer.confirmTransfer(await transfer._getFirstMessageIDByAddress(owner));
+        await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10, {from: owner});
+        await transfer.confirmTransfer(await transfer._getFirstMessageIDByAddress(owner), {from: owner});
     });
 
     it("revertTransfer => true", async () => {
@@ -49,7 +49,7 @@ contract("Transfers", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wal
 
     it("withdrawTransfer => true", async () => {
         await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
-        await transfer.withdrawTransfer(web3.utils.asciiToHex("32"), web3.utils.asciiToHex("32"), owner, 10);
-        await transfer.confirmWithdrawTransfer(web3.utils.asciiToHex("32"));
+        await transfer.withdrawTransfer(web3.utils.asciiToHex("32"), web3.utils.asciiToHex("32"), owner, 10, {from: owner});
+        await transfer.confirmWithdrawTransfer(web3.utils.asciiToHex("32"), {from: owner});
     });
 });

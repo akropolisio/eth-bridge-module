@@ -5,8 +5,9 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../interfaces/ITransfers.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
-contract Transfers is ITransfers, Initializable {
+contract Transfers is ITransfers, Ownable {
 
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
@@ -90,6 +91,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function setTransfer(uint amount, address owner, bytes32 guestAddress) external 
+    onlyOwner
     allowTransfer(owner, amount) {
          /** to modifier **/
         
@@ -105,6 +107,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function revertTransfer(bytes32 messageID) external 
+    onlyOwner
     pendingMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED;
@@ -113,6 +116,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) 
+    onlyOwner
     validMessage(messageID, spender, guestAddress, availableAmount) 
     pendingMessage(messageID)external {
         Message storage message = messages[messageID];
@@ -122,6 +126,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function confirmTransfer(bytes32 messageID) external
+    onlyOwner
     approvedMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
@@ -129,6 +134,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) 
+    onlyOwner
     checkBalance(availableAmount)
     external {
         token.transfer(recipient, availableAmount);
@@ -138,6 +144,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function confirmWithdrawTransfer(bytes32 messageID) external 
+    onlyOwner
     withdrawMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
@@ -145,6 +152,7 @@ contract Transfers is ITransfers, Initializable {
     }
 
     function  confirmCancelTransfer(bytes32 messageID) external 
+    onlyOwner
     cancelMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
@@ -152,7 +160,8 @@ contract Transfers is ITransfers, Initializable {
         emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function initialize(IERC20 _token) initializer public {
+    function init(IERC20 _token) initializer public {
+        Ownable.initialize(msg.sender);
         token = _token;
     }
 

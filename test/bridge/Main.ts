@@ -28,17 +28,17 @@ contract("BridgeContract", async ([_, owner,  wallet1, wallet2, wallet3, wallet4
 
     beforeEach(async function() {
         limits = await BridgeLimits.new();  
-        await limits.initialize(); 
+        await limits.init(); 
         dao = await DaoContract.new();
-        await dao.initialize(limits.address);
+        await dao.init(limits.address);
 
         erc20 = await ERC20Contract.new(owner, 100000000000);
         transfer = await TransferContract.new();  
-        await transfer.initialize(erc20.address);
+        await transfer.init(erc20.address);
         await erc20.approve(transfer.address, 100000000000, {from: owner})
 
         status = await BridgeStatus.new();  
-        status.initialize(); 
+        status.init(); 
 
         candidate = await CandidateContract.new();  
         candidate.initialize(); 
@@ -46,7 +46,13 @@ contract("BridgeContract", async ([_, owner,  wallet1, wallet2, wallet3, wallet4
         bridge = await BridgeContract.new();
         bridge.initialize(status.address, transfer.address, dao.address, candidate.address, limits.address);
 
-        await erc20.approve(bridge.address, 100000000000, {from: owner})
+        await erc20.approve(bridge.address, 100000000000, {from: owner});
+
+        await status.transferOwnership(bridge.address);
+        await transfer.transferOwnership(bridge.address);
+        await dao.transferOwnership(bridge.address);
+        await candidate.transferOwnership(bridge.address);
+
      });
 
      it("get init parameters", async () => {

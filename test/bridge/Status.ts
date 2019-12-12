@@ -15,7 +15,7 @@ contract("BridgeStatus", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, 
 
     beforeEach(async function() {
        status = await BridgeStatus.new();  
-       status.initialize(); 
+       status.init(); 
     });
 
 
