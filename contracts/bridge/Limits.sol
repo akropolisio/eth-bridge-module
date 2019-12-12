@@ -38,7 +38,7 @@ contract Limits is ILimits, Initializable {
     uint dayGuestMaxLimitForOneAddress,
     uint maxGuestPendingTransactionLimit);
 
-    BridgeLimits public limits;
+    BridgeLimits public parameters;
     
     function setLimits(uint minHostTransactionValue,
     uint maxHostTransactionValue,
@@ -50,29 +50,29 @@ contract Limits is ILimits, Initializable {
     uint dayGuestMaxLimit,
     uint dayGuestMaxLimitForOneAddress,
     uint maxGuestPendingTransactionLimit) external {
-        limits.minHostTransactionValue = minHostTransactionValue;
-        limits.maxHostTransactionValue = maxHostTransactionValue;
-        limits.dayHostMaxLimit = dayHostMaxLimit;
-        limits.dayHostMaxLimitForOneAddress = dayHostMaxLimitForOneAddress;
-        limits.maxHostPendingTransactionLimit = maxHostPendingTransactionLimit;
+        parameters.minHostTransactionValue = minHostTransactionValue;
+        parameters.maxHostTransactionValue = maxHostTransactionValue;
+        parameters.dayHostMaxLimit = dayHostMaxLimit;
+        parameters.dayHostMaxLimitForOneAddress = dayHostMaxLimitForOneAddress;
+        parameters.maxHostPendingTransactionLimit = maxHostPendingTransactionLimit;
 
-        limits.minGuestTransactionValue = minGuestTransactionValue;
-        limits.maxGuestTransactionValue = maxGuestTransactionValue;
-        limits.dayGuestMaxLimit = dayGuestMaxLimit;
-        limits.dayGuestMaxLimitForOneAddress = dayGuestMaxLimitForOneAddress;
-        limits.maxGuestPendingTransactionLimit = maxGuestPendingTransactionLimit;
+        parameters.minGuestTransactionValue = minGuestTransactionValue;
+        parameters.maxGuestTransactionValue = maxGuestTransactionValue;
+        parameters.dayGuestMaxLimit = dayGuestMaxLimit;
+        parameters.dayGuestMaxLimitForOneAddress = dayGuestMaxLimitForOneAddress;
+        parameters.maxGuestPendingTransactionLimit = maxGuestPendingTransactionLimit;
 
         emit SetNewLimits(
-          limits.minHostTransactionValue, 
-          limits.maxHostTransactionValue, 
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit 
+          parameters.minHostTransactionValue, 
+          parameters.maxHostTransactionValue, 
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit 
         );
     }
 
@@ -80,17 +80,17 @@ contract Limits is ILimits, Initializable {
     function getLimits() external view returns 
     (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
         return (
-          limits.minHostTransactionValue,
-          limits.maxHostTransactionValue,
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
+          parameters.minHostTransactionValue,
+          parameters.maxHostTransactionValue,
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
         //ETH Limits
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit
         );
     }
   
@@ -99,7 +99,7 @@ contract Limits is ILimits, Initializable {
     }
 
     function init() internal {
-        limits = BridgeLimits(10*10**18, 
+        parameters = BridgeLimits(10*10**18, 
                               100*10**18, 
                               200*10**18, 
                               50*10**18, 
@@ -112,16 +112,16 @@ contract Limits is ILimits, Initializable {
                               );
       
         emit SetNewLimits(
-          limits.minHostTransactionValue, 
-          limits.maxHostTransactionValue, 
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit 
+          parameters.minHostTransactionValue, 
+          parameters.maxHostTransactionValue, 
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit  
         );
     }
 }

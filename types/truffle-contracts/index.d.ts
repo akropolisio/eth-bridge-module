@@ -316,78 +316,6 @@ export interface CandidateInstance extends Truffle.ContractInstance {
 }
 
 export interface DaoInstance extends Truffle.ContractInstance {
-  getLimits(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<[BN, BN, BN, BN, BN, BN, BN, BN, BN, BN]>;
-
-  initialize: {
-    (txDetails?: Truffle.TransactionDetails): Promise<
-      Truffle.TransactionResponse
-    >;
-    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
-    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
-    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
-  };
-
-  limits(
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<[BN, BN, BN, BN, BN, BN, BN, BN, BN, BN]>;
-
-  setLimits: {
-    (
-      minHostTransactionValue: number | BN | string,
-      maxHostTransactionValue: number | BN | string,
-      dayHostMaxLimit: number | BN | string,
-      dayHostMaxLimitForOneAddress: number | BN | string,
-      maxHostPendingTransactionLimit: number | BN | string,
-      minGuestTransactionValue: number | BN | string,
-      maxGuestTransactionValue: number | BN | string,
-      dayGuestMaxLimit: number | BN | string,
-      dayGuestMaxLimitForOneAddress: number | BN | string,
-      maxGuestPendingTransactionLimit: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<Truffle.TransactionResponse>;
-    call(
-      minHostTransactionValue: number | BN | string,
-      maxHostTransactionValue: number | BN | string,
-      dayHostMaxLimit: number | BN | string,
-      dayHostMaxLimitForOneAddress: number | BN | string,
-      maxHostPendingTransactionLimit: number | BN | string,
-      minGuestTransactionValue: number | BN | string,
-      maxGuestTransactionValue: number | BN | string,
-      dayGuestMaxLimit: number | BN | string,
-      dayGuestMaxLimitForOneAddress: number | BN | string,
-      maxGuestPendingTransactionLimit: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<void>;
-    sendTransaction(
-      minHostTransactionValue: number | BN | string,
-      maxHostTransactionValue: number | BN | string,
-      dayHostMaxLimit: number | BN | string,
-      dayHostMaxLimitForOneAddress: number | BN | string,
-      maxHostPendingTransactionLimit: number | BN | string,
-      minGuestTransactionValue: number | BN | string,
-      maxGuestTransactionValue: number | BN | string,
-      dayGuestMaxLimit: number | BN | string,
-      dayGuestMaxLimitForOneAddress: number | BN | string,
-      maxGuestPendingTransactionLimit: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<string>;
-    estimateGas(
-      minHostTransactionValue: number | BN | string,
-      maxHostTransactionValue: number | BN | string,
-      dayHostMaxLimit: number | BN | string,
-      dayHostMaxLimitForOneAddress: number | BN | string,
-      maxHostPendingTransactionLimit: number | BN | string,
-      minGuestTransactionValue: number | BN | string,
-      maxGuestTransactionValue: number | BN | string,
-      dayGuestMaxLimit: number | BN | string,
-      dayGuestMaxLimitForOneAddress: number | BN | string,
-      maxGuestPendingTransactionLimit: number | BN | string,
-      txDetails?: Truffle.TransactionDetails
-    ): Promise<number>;
-  };
-
   createProposal: {
     (
       parameters: (number | BN | string)[],
@@ -403,6 +331,42 @@ export interface DaoInstance extends Truffle.ContractInstance {
     ): Promise<string>;
     estimateGas(
       parameters: (number | BN | string)[],
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  approvedNewProposal: {
+    (proposalID: string | BN, txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(
+      proposalID: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      proposalID: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      proposalID: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
+  };
+
+  initialize: {
+    (_limits: string | BN, txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      _limits: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
@@ -1201,7 +1165,7 @@ export interface ITransfersInstance extends Truffle.ContractInstance {
 }
 
 export interface LimitsInstance extends Truffle.ContractInstance {
-  limits(
+  parameters(
     txDetails?: Truffle.TransactionDetails
   ): Promise<[BN, BN, BN, BN, BN, BN, BN, BN, BN, BN]>;
 

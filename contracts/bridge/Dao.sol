@@ -8,7 +8,7 @@ import "@openzeppelin/upgrades/contracts/Initializable.sol";
 
 import "../interfaces/IDao.sol";
 
-contract Dao is Limits  {
+contract Dao is IDao, Initializable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
     /*
@@ -34,9 +34,11 @@ contract Dao is Limits  {
         ProposalStatus status;
         address sender;
         uint timestamp;
-        BridgeLimits limits;
+        uint[10] limits;
         bool isExists;
     }
+
+    ILimits limits;
 
     /** Proposals **/
     mapping(bytes32 => Proposal) internal proposals;
@@ -48,57 +50,37 @@ contract Dao is Limits  {
         _;
     }
 
-    function createProposal(uint[10] calldata parameters) checkProposalByDate external {
-
-        BridgeLimits memory limits;
-        limits.minHostTransactionValue = parameters[0];
-        limits.maxHostTransactionValue = parameters[1];
-        limits.dayHostMaxLimit = parameters[2];
-        limits.dayHostMaxLimitForOneAddress = parameters[3];
-        limits.maxHostPendingTransactionLimit = parameters[4];
-        //ETH Limits
-        limits.minGuestTransactionValue = parameters[5];
-        limits.maxGuestTransactionValue = parameters[6];
-        limits.dayGuestMaxLimit = parameters[7];
-        limits.dayGuestMaxLimitForOneAddress = parameters[8];
-        limits.maxGuestPendingTransactionLimit = parameters[9];
-
+    function createProposal(uint[10] calldata parameters) checkProposalByDate external {   
         bytes32 proposalID = keccak256(abi.encodePacked(now));
-        Proposal memory proposal = Proposal(proposalID, ProposalStatus.PENDING, msg.sender, now, limits, true); 
+        Proposal memory proposal = Proposal(proposalID, ProposalStatus.PENDING, msg.sender, now, parameters, true); 
         proposals[proposalID] = proposal;
         proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] = proposalsCountByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))]+1;
 
         emit ProposalCreated(proposalID, msg.sender, parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5], parameters[6], parameters[7], parameters[8], parameters[9]);
     }
 
-    /*function approvedNewProposal(bytes32 proposalID) external {
+    function approvedNewProposal(bytes32 proposalID) external {
         Proposal memory proposal = proposals[proposalID];
 
         proposal.status = ProposalStatus.APPROVED;
-        limits.minHostTransactionValue = proposal.limits.minHostTransactionValue;
-        limits.maxHostTransactionValue = proposal.limits.maxHostTransactionValue;
-        limits.dayHostMaxLimit = proposal.limits.dayHostMaxLimit;
-        limits.dayHostMaxLimitForOneAddress = proposal.limits.dayHostMaxLimitForOneAddress;
-        limits.maxHostPendingTransactionLimit = proposal.limits.maxHostPendingTransactionLimit;
-        //ETH Limits
-        limits.minGuestTransactionValue = proposal.limits.minGuestTransactionValue;
-        limits.maxGuestTransactionValue = proposal.limits.maxGuestTransactionValue;
-        limits.dayGuestMaxLimit = proposal.limits.dayGuestMaxLimit;
-        limits.dayGuestMaxLimitForOneAddress = proposal.limits.dayGuestMaxLimitForOneAddress;
-        limits.maxGuestPendingTransactionLimit = proposal.limits.maxGuestPendingTransactionLimit;
 
-        emit ProposalApproved(proposalID);
-        emit SetNewLimits(
-          limits.minHostTransactionValue, 
-          limits.maxHostTransactionValue, 
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit 
+        limits.setLimits(
+            proposal.limits[0],
+            proposal.limits[1],
+            proposal.limits[2],
+            proposal.limits[3],
+            proposal.limits[4],
+            proposal.limits[5],
+            proposal.limits[6],
+            proposal.limits[7],
+            proposal.limits[8],
+            proposal.limits[9]
         );
-    }*/
+        
+        emit ProposalApproved(proposalID);
+    }
+
+    function initialize(ILimits _limits) initializer public {
+        limits = _limits;
+    }
 }
