@@ -100,25 +100,29 @@ contract Transfers is ITransfers, Initializable {
         messages[keccak256(abi.encodePacked(now))] = message;
 
         messagesBySender[msg.sender].push(messageID);
-        
+
         emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
     }
 
-    function revertTransfer(bytes32 messageID) external {
+    function revertTransfer(bytes32 messageID) external 
+    pendingMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED;
         token.transfer(msg.sender, message.availableAmount);
         emit RevertMessage(messageID, msg.sender, message.availableAmount);
     }
 
-    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) external {
+    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) 
+    validMessage(messageID, spender, guestAddress, availableAmount) 
+    pendingMessage(messageID)external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
         emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount);
     }
 
-    function confirmTransfer(bytes32 messageID) external {
+    function confirmTransfer(bytes32 messageID) external
+    approvedMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
@@ -131,13 +135,15 @@ contract Transfers is ITransfers, Initializable {
         emit WithdrawMessage(messageID, recipient, sender, availableAmount);
     }
 
-    function confirmWithdrawTransfer(bytes32 messageID) external {
+    function confirmWithdrawTransfer(bytes32 messageID) external 
+    withdrawMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function  confirmCancelTransfer(bytes32 messageID) external {
+    function  confirmCancelTransfer(bytes32 messageID) external 
+    cancelMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
@@ -146,5 +152,9 @@ contract Transfers is ITransfers, Initializable {
 
     function initialize(IERC20 _token) initializer public {
         token = _token;
+    }
+
+    function getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
+        return messagesBySender[sender][0];
     }
 }

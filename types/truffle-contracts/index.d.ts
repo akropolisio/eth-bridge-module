@@ -1871,6 +1871,11 @@ export interface TransfersInstance extends Truffle.ContractInstance {
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
   };
+
+  getFirstMessageIDByAddress(
+    sender: string | BN,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<string>;
 }
 
 export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
