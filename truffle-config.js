@@ -66,7 +66,7 @@ module.exports = {
     
     development: {
       host: "127.0.0.1",
-      gas: "6000000",
+      gas: "9000000",
       gasPrice: toHex(toWei("1", "gwei")),
       network_id: "*",
       port: "8545",
@@ -108,7 +108,7 @@ module.exports = {
       version: "0.5.12",
       settings: {
         optimizer: {
-          enabled: false,
+          enabled: true,
           runs: 200,
         },
       },

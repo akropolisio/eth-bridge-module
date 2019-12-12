@@ -170,6 +170,15 @@ export interface BridgeInstance extends Truffle.ContractInstance {
 
   howManyValidatorsDecide(txDetails?: Truffle.TransactionDetails): Promise<BN>;
 
+  init: {
+    (txDetails?: Truffle.TransactionDetails): Promise<
+      Truffle.TransactionResponse
+    >;
+    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
+    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
+    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+  };
+
   isExistValidator(
     wallet: string | BN,
     txDetails?: Truffle.TransactionDetails
@@ -200,12 +209,38 @@ export interface BridgeInstance extends Truffle.ContractInstance {
   ): Promise<BN>;
 
   initialize: {
-    (txDetails?: Truffle.TransactionDetails): Promise<
-      Truffle.TransactionResponse
-    >;
-    call(txDetails?: Truffle.TransactionDetails): Promise<void>;
-    sendTransaction(txDetails?: Truffle.TransactionDetails): Promise<string>;
-    estimateGas(txDetails?: Truffle.TransactionDetails): Promise<number>;
+    (
+      _status: string | BN,
+      _transfer: string | BN,
+      _dao: string | BN,
+      _candidate: string | BN,
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<Truffle.TransactionResponse>;
+    call(
+      _status: string | BN,
+      _transfer: string | BN,
+      _dao: string | BN,
+      _candidate: string | BN,
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<void>;
+    sendTransaction(
+      _status: string | BN,
+      _transfer: string | BN,
+      _dao: string | BN,
+      _candidate: string | BN,
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<string>;
+    estimateGas(
+      _status: string | BN,
+      _transfer: string | BN,
+      _dao: string | BN,
+      _candidate: string | BN,
+      _limits: string | BN,
+      txDetails?: Truffle.TransactionDetails
+    ): Promise<number>;
   };
 
   setTransfer: {
@@ -1015,6 +1050,11 @@ export interface ICandidateInstance extends Truffle.ContractInstance {
     ): Promise<number>;
   };
 
+  getValidatorsListByProposalID(
+    proposalID: string | BN,
+    txDetails?: Truffle.TransactionDetails
+  ): Promise<(string)[]>;
+
   isCandidateExists(
     host: string | BN,
     txDetails?: Truffle.TransactionDetails
@@ -1024,11 +1064,6 @@ export interface ICandidateInstance extends Truffle.ContractInstance {
     host: string | BN,
     txDetails?: Truffle.TransactionDetails
   ): Promise<string>;
-
-  getValidatorsListByProposalID(
-    proposalID: string | BN,
-    txDetails?: Truffle.TransactionDetails
-  ): Promise<(string)[]>;
 }
 
 export interface IDaoInstance extends Truffle.ContractInstance {
@@ -1360,21 +1395,25 @@ export interface ITransfersInstance extends Truffle.ContractInstance {
   setTransfer: {
     (
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<Truffle.TransactionResponse>;
     call(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<void>;
     sendTransaction(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
     estimateGas(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
@@ -2042,21 +2081,25 @@ export interface TransfersInstance extends Truffle.ContractInstance {
   setTransfer: {
     (
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<Truffle.TransactionResponse>;
     call(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<void>;
     sendTransaction(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<string>;
     estimateGas(
       amount: number | BN | string,
+      owner: string | BN,
       guestAddress: string | BN,
       txDetails?: Truffle.TransactionDetails
     ): Promise<number>;
@@ -2280,7 +2323,7 @@ export interface ValidatorsOperationsInstance extends Truffle.ContractInstance {
     txDetails?: Truffle.TransactionDetails
   ): Promise<BN>;
 
-  initialize: {
+  init: {
     (txDetails?: Truffle.TransactionDetails): Promise<
       Truffle.TransactionResponse
     >;
@@ -2484,7 +2527,7 @@ export interface ValidatorsOperationsMockInstance
     txDetails?: Truffle.TransactionDetails
   ): Promise<BN>;
 
-  initialize: {
+  init: {
     (txDetails?: Truffle.TransactionDetails): Promise<
       Truffle.TransactionResponse
     >;

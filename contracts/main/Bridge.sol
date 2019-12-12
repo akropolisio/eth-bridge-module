@@ -13,7 +13,7 @@ import "../interfaces/ICandidate.sol";
 import "../interfaces/ILimits.sol";
 
 
-contract Bridge is Initializable, ValidatorsOperations {
+contract Bridge is ValidatorsOperations  {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -36,9 +36,9 @@ contract Bridge is Initializable, ValidatorsOperations {
     /**
     * @notice Constructor
     */
-    function initialize(IStatus _status, ITransfers _transfer, IDao _dao, ICandidate _candidate, ILimits _limits) public 
-    initializer {
-        ValidatorsOperations.initialize();
+    function initialize(IStatus _status, ITransfers _transfer, IDao _dao, ICandidate _candidate, ILimits _limits) public initializer
+    {
+        ValidatorsOperations.init();
         statusContract = _status;
         daoContract = _dao;
         transferContract = _transfer;
@@ -140,9 +140,6 @@ contract Bridge is Initializable, ValidatorsOperations {
         _;
     }
 
-    /*
-        public functions
-    */
     function setTransfer(uint amount, bytes32 guestAddress) public 
     activeBridgeStatus
     checkMinMaxTransactionValue(amount)
@@ -150,12 +147,9 @@ contract Bridge is Initializable, ValidatorsOperations {
     checkDayVolumeTransaction()
     checkDayVolumeTransactionForAddress() {
        //_addPendingVolumeByDate(amount);
-       transferContract.setTransfer(amount, guestAddress);
+       transferContract.setTransfer(amount, msg.sender, guestAddress);
     }
 
-    /*
-        revert function
-    */
     function revertTransfer(bytes32 messageID) public 
     activeBridgeStatus
     pendingMessage(messageID)  
@@ -163,9 +157,6 @@ contract Bridge is Initializable, ValidatorsOperations {
         transferContract.revertTransfer(messageID);
     }
 
-    /*
-    * Approve finance by message ID when transfer pending
-    */
     function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) public 
     activeBridgeStatus 
     validMessage(messageID, spender, guestAddress, availableAmount) 
@@ -174,9 +165,6 @@ contract Bridge is Initializable, ValidatorsOperations {
        transferContract.approveTransfer(messageID, spender, guestAddress, availableAmount);
     }
     
-    /*
-    * Confirm tranfer by message ID when transfer pending
-    */
     function confirmTransfer(bytes32 messageID) public 
     activeBridgeStatus
     approvedMessage(messageID)  
@@ -187,18 +175,12 @@ contract Bridge is Initializable, ValidatorsOperations {
         //_addVolumeByMessageID(messageID);
     }
     
-    /*
-    * Withdraw tranfer by message ID after approve from guest
-    */
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount)  public 
     activeBridgeStatus
     onlyManyValidators {
         transferContract.withdrawTransfer(messageID, sender, recipient, availableAmount);
     }
     
-    /*
-    * Confirm Withdraw tranfer by message ID after approve from guest
-    */
     function confirmWithdrawTransfer(bytes32 messageID)  public withdrawMessage(messageID) 
     activeBridgeStatus 
     checkDayVolumeTransaction()
@@ -207,17 +189,13 @@ contract Bridge is Initializable, ValidatorsOperations {
         transferContract.confirmWithdrawTransfer(messageID);
     }
 
-    /*
-    * Confirm Withdraw cancel by message ID after approve from guest
-    */
     function confirmCancelTransfer(bytes32 messageID)  public 
     activeBridgeStatus 
     cancelMessage(messageID)  
     onlyManyValidators {
        transferContract.confirmCancelTransfer(messageID);
     }
-    
-    /* Bridge Status Function */
+
     function startBridge() public 
     onlyManyValidators {
         statusContract.startBridge();
@@ -250,9 +228,6 @@ contract Bridge is Initializable, ValidatorsOperations {
        statusContract.setResumedStatusForGuestAddress(sender);
     }
 
-    /*
-     DAO Parameters
-    */
     function createProposal(uint[10] memory parameters) 
     onlyExistingValidator(msg.sender)
     public  {
@@ -266,9 +241,6 @@ contract Bridge is Initializable, ValidatorsOperations {
         daoContract.approvedNewProposal(proposalID);
     }
 
-    /*
-        validatorsProposal
-    */
     function createCandidatesValidatorsProposal(address[] memory hosts)
     onlyExistingValidator(msg.sender)
     public {
@@ -291,9 +263,6 @@ contract Bridge is Initializable, ValidatorsOperations {
         candidateContract.removeCandidate(host);
     }
 
-    /*
-     * Internal functions
-    */
     function _addVolumeByMessageID(bytes32 messageID) internal {
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(transferContract.getAvailableAmount(messageID));

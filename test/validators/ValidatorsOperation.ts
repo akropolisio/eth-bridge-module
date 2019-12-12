@@ -18,9 +18,9 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
   
    beforeEach(async function() {
       validatorsOperations = await ValidatorsOperations.new();
-      validatorsOperations.initialize();
+      validatorsOperations.init();
       validatorsOperationsMock = await ValidatorsOperationsMock.new();
-      validatorsOperationsMock.initialize();
+      validatorsOperationsMock.init();
     });
   
    it("should be initialized correctly", async () => {

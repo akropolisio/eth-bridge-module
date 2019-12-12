@@ -79,8 +79,8 @@ contract Transfers is ITransfers, Initializable {
         _;
     }
 
-    modifier allowTransfer(uint256 amount) {
-        require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
+    modifier allowTransfer(address owner, uint256 amount) {
+        require(token.allowance(owner, address(this)) >= amount, "contract is not allowed to this amount");
         _;
     }
 
@@ -89,19 +89,19 @@ contract Transfers is ITransfers, Initializable {
         _;
     }
 
-    function setTransfer(uint amount, bytes32 guestAddress) external 
-    allowTransfer(amount) {
+    function setTransfer(uint amount, address owner, bytes32 guestAddress) external 
+    allowTransfer(owner, amount) {
          /** to modifier **/
         
-        token.transferFrom(msg.sender, address(this), amount);
+        token.transferFrom(owner, address(this), amount);
 
         bytes32 messageID = keccak256(abi.encodePacked(now));
-        Message  memory message = Message(messageID, msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
+        Message  memory message = Message(messageID, owner, guestAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
 
-        messagesBySender[msg.sender].push(messageID);
+        messagesBySender[owner].push(messageID);
 
-        emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
+        emit RelayMessage(keccak256(abi.encodePacked(now)), owner, guestAddress, amount);
     }
 
     function revertTransfer(bytes32 messageID) external 

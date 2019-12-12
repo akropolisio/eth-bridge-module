@@ -22,33 +22,33 @@ contract("Transfers", async ([_, owner,  wallet1, wallet2, wallet3, wallet4, wal
     });
 
     it("setTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
     });
 
     it("revertTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
         await transfer.revertTransfer(await transfer._getFirstMessageIDByAddress(owner));
     });
 
     it("approveTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
         await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10);
     });
 
     it("confirmTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
         await transfer.approveTransfer(await transfer._getFirstMessageIDByAddress(owner), owner, web3.utils.asciiToHex("32"), 10);
         await transfer.confirmTransfer(await transfer._getFirstMessageIDByAddress(owner));
     });
 
     it("revertTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
         await transfer.revertTransfer(await transfer._getFirstMessageIDByAddress(owner), {from: owner});
         await transfer.confirmCancelTransfer(await transfer._getFirstMessageIDByAddress(owner), {from: owner});
     });
 
     it("withdrawTransfer => true", async () => {
-        await transfer.setTransfer(10, web3.utils.asciiToHex("32"), {from: owner});
+        await transfer.setTransfer(10, owner, web3.utils.asciiToHex("32"), {from: owner});
         await transfer.withdrawTransfer(web3.utils.asciiToHex("32"), web3.utils.asciiToHex("32"), owner, 10);
         await transfer.confirmWithdrawTransfer(web3.utils.asciiToHex("32"));
     });

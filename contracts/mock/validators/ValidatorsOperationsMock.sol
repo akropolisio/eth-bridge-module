@@ -8,8 +8,8 @@ contract ValidatorsOperationsMock is Initializable, ValidatorsOperations {
     uint public value;
 
     // CONSTRUCTOR
-    function initialize() public initializer {
-        ValidatorsOperations.initialize();
+    function init() public initializer {
+        ValidatorsOperations.init();
     }
 
     function setValue(uint _value) public onlyManyValidators {

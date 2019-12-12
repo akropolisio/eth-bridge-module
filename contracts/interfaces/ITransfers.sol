@@ -1,7 +1,7 @@
 pragma solidity ^0.5.12;
 
 contract ITransfers {
-    function setTransfer(uint amount, bytes32 guestAddress) external;
+    function setTransfer(uint amount, address owner, bytes32 guestAddress) external;
     function revertTransfer(bytes32 messageID) external;
     function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) external;
     function confirmTransfer(bytes32 messageID) external;
