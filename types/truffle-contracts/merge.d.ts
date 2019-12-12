@@ -11,6 +11,7 @@ declare global {
       require(name: "Bridge"): TruffleContracts.BridgeContract;
       require(name: "Candidate"): TruffleContracts.CandidateContract;
       require(name: "Dao"): TruffleContracts.DaoContract;
+      require(name: "ERC20Mock"): TruffleContracts.ERC20MockContract;
       require(name: "ICandidate"): TruffleContracts.ICandidateContract;
       require(name: "IDao"): TruffleContracts.IDaoContract;
       require(name: "IERC20"): TruffleContracts.IERC20Contract;

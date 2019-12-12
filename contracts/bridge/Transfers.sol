@@ -6,7 +6,8 @@ import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../interfaces/ITransfers.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 
-contract Transfers is ITransfers {
+contract Transfers is ITransfers, Initializable {
+
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
     IERC20 token;
@@ -137,5 +138,9 @@ contract Transfers is ITransfers {
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
         emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
+    }
+
+    function initialize(IERC20 _token) initializer public {
+        token = _token;
     }
 }
