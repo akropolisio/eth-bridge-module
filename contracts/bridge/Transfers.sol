@@ -39,7 +39,7 @@ contract Transfers is ITransfers, Initializable {
        * Messages
     */
     mapping(bytes32 => Message) messages;
-    mapping(address => Message) messagesBySender;
+    mapping(address => bytes32[]) messagesBySender;
 
     /*
         check available amount
@@ -94,9 +94,13 @@ contract Transfers is ITransfers, Initializable {
          /** to modifier **/
         
         token.transferFrom(msg.sender, address(this), amount);
-        Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
+
+        bytes32 messageID = keccak256(abi.encodePacked(now));
+        Message  memory message = Message(messageID, msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
 
+        messagesBySender[msg.sender].push(messageID);
+        
         emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
     }
 
