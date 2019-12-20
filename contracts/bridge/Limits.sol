@@ -1,8 +1,16 @@
 pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
+import "../interfaces/ILimits.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
-contract Limits {
+/*
+ add contructor for initialize
+*/
+
+contract Limits is ILimits, Ownable {
+
      struct BridgeLimits {
         //ETH Limits
         uint minHostTransactionValue;
@@ -30,50 +38,93 @@ contract Limits {
     uint dayGuestMaxLimitForOneAddress,
     uint maxGuestPendingTransactionLimit);
 
-    BridgeLimits internal limits;
-
-    /*limit getter */
-    function getLimits() public view returns 
-    (uint, uint, uint, uint, uint, uint, uint, uint, uint, uint) {
-        return (
-          limits.minHostTransactionValue,
-          limits.maxHostTransactionValue,
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-        //ETH Limits
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit
-        );
-    }
+    BridgeLimits public parameters;
     
-    function init() internal {
-        limits.minHostTransactionValue = 10*10**18;
-        limits.maxHostTransactionValue = 100*10**18;
-        limits.dayHostMaxLimit = 200*10**18;
-        limits.dayHostMaxLimitForOneAddress = 50*10**18;
-        limits.maxHostPendingTransactionLimit = 400*10**18;
+    function setLimits(uint minHostTransactionValue,
+    uint maxHostTransactionValue,
+    uint dayHostMaxLimit,
+    uint dayHostMaxLimitForOneAddress,
+    uint maxHostPendingTransactionLimit,
+    uint minGuestTransactionValue,
+    uint maxGuestTransactionValue,
+    uint dayGuestMaxLimit,
+    uint dayGuestMaxLimitForOneAddress,
+    uint maxGuestPendingTransactionLimit) external 
+    onlyOwner
+    {
+        parameters.minHostTransactionValue = minHostTransactionValue;
+        parameters.maxHostTransactionValue = maxHostTransactionValue;
+        parameters.dayHostMaxLimit = dayHostMaxLimit;
+        parameters.dayHostMaxLimitForOneAddress = dayHostMaxLimitForOneAddress;
+        parameters.maxHostPendingTransactionLimit = maxHostPendingTransactionLimit;
 
-        limits.minGuestTransactionValue = 10*10**18;
-        limits.maxGuestTransactionValue = 100*10**18;
-        limits.dayGuestMaxLimit = 200*10**18;
-        limits.dayGuestMaxLimitForOneAddress = 50*10**18;
-        limits.maxGuestPendingTransactionLimit = 400*10**18;
+        parameters.minGuestTransactionValue = minGuestTransactionValue;
+        parameters.maxGuestTransactionValue = maxGuestTransactionValue;
+        parameters.dayGuestMaxLimit = dayGuestMaxLimit;
+        parameters.dayGuestMaxLimitForOneAddress = dayGuestMaxLimitForOneAddress;
+        parameters.maxGuestPendingTransactionLimit = maxGuestPendingTransactionLimit;
 
         emit SetNewLimits(
-          limits.minHostTransactionValue, 
-          limits.maxHostTransactionValue, 
-          limits.dayHostMaxLimit,
-          limits.dayHostMaxLimitForOneAddress,
-          limits.maxHostPendingTransactionLimit,
-          limits.minGuestTransactionValue,
-          limits.maxGuestTransactionValue,
-          limits.dayGuestMaxLimit,
-          limits.dayGuestMaxLimitForOneAddress,
-          limits.maxGuestPendingTransactionLimit 
+          parameters.minHostTransactionValue, 
+          parameters.maxHostTransactionValue, 
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit 
+        );
+    }
+
+    /*limit getter */
+    function getLimits() external view returns 
+    (uint[10] memory) {
+        return ([
+          parameters.minHostTransactionValue,
+          parameters.maxHostTransactionValue,
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
+        //ETH Limits
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit
+        ]);
+    }
+  
+    function init() initializer public {
+        Ownable.initialize(msg.sender);
+        _init();
+    }
+
+    function _init() internal {
+        parameters = BridgeLimits(10*10**18, 
+                              100*10**18, 
+                              200*10**18, 
+                              50*10**18, 
+                              400*10**18, 
+                              10*10**18,
+                              100*10**18,
+                              200*10**18,
+                              50*10**18,
+                              400*10**18
+                              );
+      
+        emit SetNewLimits(
+          parameters.minHostTransactionValue, 
+          parameters.maxHostTransactionValue, 
+          parameters.dayHostMaxLimit,
+          parameters.dayHostMaxLimitForOneAddress,
+          parameters.maxHostPendingTransactionLimit,
+          parameters.minGuestTransactionValue,
+          parameters.maxGuestTransactionValue,
+          parameters.dayGuestMaxLimit,
+          parameters.dayGuestMaxLimitForOneAddress,
+          parameters.maxGuestPendingTransactionLimit  
         );
     }
 }

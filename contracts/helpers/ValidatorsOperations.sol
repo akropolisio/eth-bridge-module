@@ -45,7 +45,7 @@ contract ValidatorsOperations is Initializable {
     event OperationCancelled(bytes32 operation, address lastCanceller);
     
     // CONSTRUCTOR
-    function initialize() public initializer {
+    function init() public initializer {
         validators.push(msg.sender);
         validatorsIndices[msg.sender] = 1;
         howManyValidatorsDecide = 1;

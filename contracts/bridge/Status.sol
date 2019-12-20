@@ -1,9 +1,11 @@
 pragma solidity ^0.5.12;
 
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
+import "../interfaces/IStatus.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
-contract Status {
-
+contract Status is IStatus, Ownable {
 
     using BokkyPooBahsDateTimeLibrary for uint;
 
@@ -30,7 +32,7 @@ contract Status {
 
     BridgeStatus internal bridgeStatus;
 
-    bool internal pauseBridgeByVolume;
+    bool public pauseBridgeByVolumeBool;
 
     mapping(address => bool) internal pauseAccountByVolume;
 
@@ -44,59 +46,84 @@ contract Status {
         _;
     }
 
-    function _pauseBridgeByVolume() internal {
-        pauseBridgeByVolume = true;
+    function pauseBridgeByVolume() external onlyOwner {
+        pauseBridgeByVolumeBool = true;
         bridgeStatus = BridgeStatus.PAUSED_BY_VOLUME;
         emit BridgePausedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function _resumeBridgeByVolume() internal {
-        pauseBridgeByVolume = false;
+    function resumeBridgeByVolume() external onlyOwner {
+        pauseBridgeByVolumeBool = false;
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStartedByVolume(keccak256(abi.encodePacked(now)));
     }
 
-    function _pausedByBridgeVolumeForAddress(address sender) internal {
+    function pausedByBridgeVolumeForAddress(address sender) external onlyOwner {
         emit HostAccountPausedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
         pauseAccountByVolume[sender] = true;
     }
 
-    function _resumedByBridgeVolumeForAddress(address sender) internal {
+    function resumedByBridgeVolumeForAddress(address sender) external onlyOwner {
         pauseAccountByVolume[sender] = false;
         emit HostAccountResumedMessage(keccak256(abi.encodePacked(now)), msg.sender, now);
     }
 
-    function _setPausedStatusForGuestAddress(bytes32 sender) internal {
+    function setPausedStatusForGuestAddress(bytes32 sender) external onlyOwner {
        emit GuestAccountPausedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
-    function _setResumedStatusForGuestAddress(bytes32 sender) internal
+    function setResumedStatusForGuestAddress(bytes32 sender) onlyOwner external
     {
        emit GuestAccountResumedMessage(keccak256(abi.encodePacked(now)), sender, now);
     }
 
     /* Bridge Status Function */
-    function _startBridge() internal 
+    function startBridge() external 
+    onlyOwner
+    stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeStarted(keccak256(abi.encodePacked(now)));
     }
 
-    function _resumeBridge() internal
+    function resumeBridge() external
+    onlyOwner
+    stoppedOrPausedBridgeStatus 
     {
         bridgeStatus = BridgeStatus.ACTIVE;
         emit BridgeResumed(keccak256(abi.encodePacked(now)));
     }
 
-    function _stopBridge() internal {
+    function stopBridge() external 
+    onlyOwner
+    activeBridgeStatus
+    {
+    
         bridgeStatus = BridgeStatus.STOPPED;
         emit BridgeStopped(keccak256(abi.encodePacked(now)));
     }
 
-    function _pauseBridge() internal {
+    function pauseBridge() external 
+    onlyOwner
+    activeBridgeStatus
+    {
         bridgeStatus = BridgeStatus.PAUSED;
         emit BridgePaused(keccak256(abi.encodePacked(now)));
     }
 
+    function getStatusBridge() external  view returns(uint) {
+        return uint(bridgeStatus);
+    }
 
+    function getStatusForAccount(address account) external view returns(bool) {
+        return pauseAccountByVolume[account] ? true : false;
+    }
+
+    function init() initializer public {
+        Ownable.initialize(msg.sender);
+    }
+    
+    function isPausedByBridgVolume() public view returns(bool) {
+        return pauseBridgeByVolumeBool;
+    }
 }

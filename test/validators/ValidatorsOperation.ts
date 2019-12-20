@@ -18,9 +18,9 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
   
    beforeEach(async function() {
       validatorsOperations = await ValidatorsOperations.new();
-      validatorsOperations.initialize();
+      validatorsOperations.init();
       validatorsOperationsMock = await ValidatorsOperationsMock.new();
-      validatorsOperationsMock.initialize();
+      validatorsOperationsMock.init();
     });
   
    it("should be initialized correctly", async () => {
@@ -206,7 +206,7 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
     });
 
   
-   it("should not transfer validatorship with wrong how many argument", async () => {
+    it("should not transfer validatorship with wrong how many argument", async () => {
         await validatorsOperations.changeValidatorsWithHowMany([wallet1], 0).should.be.rejectedWith(EVMRevert);
         await validatorsOperations.changeValidatorsWithHowMany([wallet1, wallet2], 3).should.be.rejectedWith(EVMRevert);
         await validatorsOperations.changeValidatorsWithHowMany([wallet1, wallet2], 4).should.be.rejectedWith(EVMRevert);
@@ -339,7 +339,7 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
         (await validatorsOperationsMock.value()).toNumber().should.be.equal(1);
     });
 
-   it("should allow to call onlyAnyValidator methods properly", async () => {
+    it("should allow to call onlyAnyValidator methods properly", async () => {
        
         await validatorsOperationsMock.changeValidators([wallet1, wallet2]);
 
@@ -480,7 +480,7 @@ contract("ValidatorsOperation", async ([_, owner,  wallet1, wallet2, wallet3, wa
         (await validatorsOperationsMock.value()).toNumber().should.be.equal(300);
     });
 
-   it("should works for nested methods with onlyAnyvalidators => onlySomevalidators modifier", async  () => {
+    it("should works for nested methods with onlyAnyvalidators => onlySomevalidators modifier", async  () => {
       
         await validatorsOperationsMock.changeValidators([wallet1, wallet2, wallet3]);
 

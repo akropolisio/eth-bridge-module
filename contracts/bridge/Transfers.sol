@@ -1,13 +1,17 @@
 pragma solidity ^0.5.12;
 
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/upgrades/contracts/Initializable.sol";
 import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
+import "../interfaces/ITransfers.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
+import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
 
+contract Transfers is ITransfers, Ownable {
 
-contract Transfers {
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
-    IERC20 internal token;
+    IERC20 token;
 
     /*
         Struct
@@ -36,7 +40,7 @@ contract Transfers {
        * Messages
     */
     mapping(bytes32 => Message) messages;
-    mapping(address => Message) messagesBySender;
+    mapping(address => bytes32[]) messagesBySender;
 
     /*
         check available amount
@@ -76,8 +80,8 @@ contract Transfers {
         _;
     }
 
-    modifier allowTransfer(uint256 amount) {
-        require(token.allowance(msg.sender, address(this)) >= amount, "contract is not allowed to this amount");
+    modifier allowTransfer(address owner, uint256 amount) {
+        require(token.allowance(owner, address(this)) >= amount, "contract is not allowed to this amount");
         _;
     }
 
@@ -86,54 +90,103 @@ contract Transfers {
         _;
     }
 
-    function _setTransfer(uint amount, bytes32 guestAddress) internal 
-    allowTransfer(amount) {
+    function setTransfer(uint amount, address owner, bytes32 guestAddress) external 
+    onlyOwner
+    allowTransfer(owner, amount) {
          /** to modifier **/
         
-        token.transferFrom(msg.sender, address(this), amount);
-        Message  memory message = Message(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount, true, TransferStatus.PENDING);
+        token.transferFrom(owner, address(this), amount);
+
+        bytes32 messageID = keccak256(abi.encodePacked(now));
+        Message  memory message = Message(messageID, owner, guestAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
 
-        emit RelayMessage(keccak256(abi.encodePacked(now)), msg.sender, guestAddress, amount);
+        messagesBySender[owner].push(messageID);
+
+        emit RelayMessage(keccak256(abi.encodePacked(now)), owner, guestAddress, amount);
     }
 
-    function _revertTransfer(bytes32 messageID) internal {
+    function revertTransfer(bytes32 messageID) external 
+    onlyOwner
+    pendingMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED;
         token.transfer(msg.sender, message.availableAmount);
         emit RevertMessage(messageID, msg.sender, message.availableAmount);
     }
 
-    function _approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) internal {
+    function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) 
+    onlyOwner
+    validMessage(messageID, spender, guestAddress, availableAmount) 
+    pendingMessage(messageID)external {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
         emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount);
     }
 
-    function _confirmTransfer(bytes32 messageID) internal {
+    function confirmTransfer(bytes32 messageID) external
+    onlyOwner
+    approvedMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
         emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function _withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) internal {
+    function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) 
+    onlyOwner
+    checkBalance(availableAmount)
+    external {
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
         messages[messageID] = message;
         emit WithdrawMessage(messageID, recipient, sender, availableAmount);
     }
 
-    function _confirmWithdrawTransfer(bytes32 messageID) internal {
+    function confirmWithdrawTransfer(bytes32 messageID) external 
+    onlyOwner
+    withdrawMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
         emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
 
-    function  _confirmCancelTransfer(bytes32 messageID) internal {
+    function  confirmCancelTransfer(bytes32 messageID) external 
+    onlyOwner
+    cancelMessage(messageID) {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
         emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
     }
+
+    function init(IERC20 _token) initializer public {
+        Ownable.initialize(msg.sender);
+        token = _token;
+    }
+
+    function getMessageStatus(bytes32 messageID) public view returns (uint) {
+        return uint(messages[messageID].status);
+    }
+    
+    function isExistsMessage(bytes32 messageID) public view returns (bool) {
+        return messages[messageID].isExists;
+    }
+
+    function getHost(bytes32 messageID) public view returns (address) {
+        return messages[messageID].spender;
+    }
+
+     function getGuest(bytes32 messageID) public view returns (bytes32) {
+        return messages[messageID].guestAddress;
+    }
+
+    function getAvailableAmount(bytes32 messageID) public view returns (uint) {
+        return messages[messageID].availableAmount;
+    }
+
+    function _getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
+        return messagesBySender[sender][0];
+    }
+
 }
