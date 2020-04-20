@@ -78,6 +78,46 @@ contract Limits is ILimits, Ownable {
         );
     }
 
+    function getMinHostTransactionValue() external view returns (uint) {
+        return parameters.minHostTransactionValue;
+    }
+
+    function getMaxHostTransactionValue() external view returns (uint) {
+      return parameters.maxHostTransactionValue;
+    }
+
+    function getDayHostMaxLimit() external view returns (uint) {
+      return parameters.dayHostMaxLimit;
+    }
+         
+    function getDayHostMaxLimitForOneAddress() external view returns (uint) {
+      return parameters.dayHostMaxLimitForOneAddress;
+    }
+
+    function getMaxHostPendingTransactionLimit() external view returns (uint) {
+      return parameters.maxHostPendingTransactionLimit;
+    }
+
+    function getMinGuestTransactionValue() external view returns (uint) {
+      return parameters.minGuestTransactionValue;
+    }
+
+    function getMaxGuestTransactionValue() external view returns (uint) {
+      return parameters.maxGuestTransactionValue;
+    }
+
+    function getDayGuestMaxLimit() external view returns (uint) {
+      return parameters.dayGuestMaxLimit;
+    }
+
+    function getDayGuestMaxLimitForOneAddress() external view returns (uint) {
+      return parameters.dayGuestMaxLimitForOneAddress;
+    }
+
+    function getMaxGuestPendingTransactionLimit() external view returns (uint) {
+      parameters.maxGuestPendingTransactionLimit;
+    }        
+
     /*limit getter */
     function getLimits() external view returns 
     (uint[10] memory) {

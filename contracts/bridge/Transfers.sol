@@ -59,16 +59,12 @@ contract Transfers is ITransfers, Ownable {
     mapping(address => bytes32[]) messagesBySender;
 
     modifier checkMinMaxTransactionValue(uint value) {
-        uint[10] memory limits = limitsContract.getLimits();
-
-        require(value < limits[0] && value < limits[1], "Transaction value is too  small or large");
+        require(value < limitsContract.getMinHostTransactionValue() && value < limitsContract.getMaxHostTransactionValue(), "Transaction value is too  small or large");
         _;
     }
 
     modifier checkDayVolumeTransaction() {
-        uint[10] memory limits = limitsContract.getLimits();
-
-        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[2]) {
+        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limitsContract.getDayHostMaxLimit()) {
             _;
             statusContract.pauseBridgeByVolume();
         } else {
@@ -80,9 +76,7 @@ contract Transfers is ITransfers, Ownable {
     }
 
     modifier checkPendingDayVolumeTransaction() {
-        uint[10] memory limits = limitsContract.getLimits();
-
-        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[4]) {
+        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limitsContract.getMaxHostPendingTransactionLimit()) {
             _;
             statusContract.pauseBridgeByVolume();
         } else {
@@ -94,10 +88,7 @@ contract Transfers is ITransfers, Ownable {
     }
 
     modifier checkDayVolumeTransactionForAddress() {
-
-        uint[10] memory limits = limitsContract.getLimits();
-
-        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits[3]) {
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limitsContract.getDayHostMaxLimitForOneAddress()) {
              _;
              statusContract.pausedByBridgeVolumeForAddress(msg.sender);
         } else {
@@ -107,7 +98,6 @@ contract Transfers is ITransfers, Ownable {
             _;
         }
     }
-
 
     /*
         check available amount
@@ -169,12 +159,12 @@ contract Transfers is ITransfers, Ownable {
         token.transferFrom(owner, address(this), amount);
         bytes32 messageID = keccak256(abi.encodePacked(now));
         Message  memory message = Message(messageID, owner, guestAddress, amount, true, TransferStatus.PENDING);
-        messages[keccak256(abi.encodePacked(now))] = message;
+        messages[messageID] = message;
 
         messagesBySender[owner].push(messageID);
         
         _addPendingVolumeByDate(amount);
-        emit RelayMessage(keccak256(abi.encodePacked(now)), owner, guestAddress, amount, address(token));
+        emit RelayMessage(messageID, owner, guestAddress, amount, address(token));
     }
 
     function revertTransfer(bytes32 messageID) external 
@@ -203,9 +193,7 @@ contract Transfers is ITransfers, Ownable {
     checkDayVolumeTransactionForAddress()  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
-        bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
-        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
-        currentDayVolumeForAddress[dateID][getHost(messageID)] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
+        _addVolumeByMessageID(messageID, message.spender, message.availableAmount);
         emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount, address(token));
     }
 
@@ -229,7 +217,7 @@ contract Transfers is ITransfers, Ownable {
         emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount, address(token));
     }
 
-    function  confirmCancelTransfer(bytes32 messageID) external 
+    function confirmCancelTransfer(bytes32 messageID) external 
     onlyOwner
     cancelMessage(messageID) {
         Message storage message = messages[messageID];
@@ -269,11 +257,14 @@ contract Transfers is ITransfers, Ownable {
         return messagesBySender[sender][0];
     }
 
-    function _addVolumeByMessageID(bytes32 messageID) private {
-        
+    function _addVolumeByMessageID(bytes32 messageID, address host, uint availableAmount) internal {
+
+        bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
+        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
+        currentDayVolumeForAddress[dateID][getHost(messageID)] = currentDayVolumeForAddress[dateID][host].add(availableAmount);
     }  
 
-    function _addPendingVolumeByDate(uint256 availableAmount) private {
+    function _addPendingVolumeByDate(uint256 availableAmount) internal {
         bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
         currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
     }
