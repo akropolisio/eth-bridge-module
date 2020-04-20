@@ -27,25 +27,33 @@ contract("BridgeContract", async ([_, owner,  wallet1, wallet2, wallet3, wallet4
     let bridge: BridgeInstance;
 
     beforeEach(async function() {
+       
         limits = await BridgeLimits.new();  
-        await limits.init(); 
+        await limits.init();
+        
+        status = await BridgeStatus.new();  
+        status.init(); 
+       
+
+        erc20 = await ERC20Contract.new(owner, 100000000000);
+        
+        transfer = await TransferContract.new();  
+        await transfer.init(erc20.address, status.address, limits.address);
+
         dao = await DaoContract.new();
         await dao.init(limits.address);
 
-        erc20 = await ERC20Contract.new(owner, 100000000000);
-        transfer = await TransferContract.new();  
-        await transfer.init(erc20.address);
+        
+        
         await erc20.approve(transfer.address, 100000000000, {from: owner})
-
-        status = await BridgeStatus.new();  
-        status.init(); 
 
         candidate = await CandidateContract.new();  
         candidate.initialize(); 
 
         bridge = await BridgeContract.new();
-        bridge.initialize(status.address, transfer.address, dao.address, candidate.address, limits.address);
+        bridge.initialize(status.address, transfer.address, dao.address, candidate.address);
 
+       
         await erc20.approve(bridge.address, 100000000000, {from: owner});
 
         await status.transferOwnership(bridge.address);

@@ -6,12 +6,21 @@ import "../third-party/BokkyPooBahsDateTimeLibrary.sol";
 import "../interfaces/ITransfers.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-ethereum-package/contracts/ownership/Ownable.sol";
+import "../interfaces/IStatus.sol";
+import "../interfaces/ILimits.sol";
+
 
 contract Transfers is ITransfers, Ownable {
 
     enum TransferStatus {PENDING, WITHDRAW, APPROVED, CANCELED, CONFIRMED, CONFIRMED_WITHDRAW, CANCELED_CONFIRMED}
     
     IERC20 token;
+
+    using BokkyPooBahsDateTimeLibrary for uint;
+    using SafeMath for uint;
+
+    ILimits limitsContract;
+    IStatus statusContract;
 
     /*
         Struct
@@ -25,22 +34,80 @@ contract Transfers is ITransfers, Ownable {
         TransferStatus status;
     }
 
+    mapping(bytes32 => uint) currentVolumeByDate;
+
+    /* pending volume */
+    mapping(bytes32 => uint) currentVPendingVolumeByDate;
+
+    mapping(bytes32 => mapping (address => uint)) currentDayVolumeForAddress;
+
     /*
     *    Events
     */
-    event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-    event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-    event RevertMessage(bytes32 messageID, address sender, uint amount);
-    event WithdrawMessage(bytes32 messageID, address recepient, bytes32 sender, uint amount);
-    event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount);
-    event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
-    event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount);
+    event RelayMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount, address token);
+    event ConfirmMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount, address token);
+    event RevertMessage(bytes32 messageID, address sender, uint amount, address token);
+    event WithdrawMessage(bytes32 messageID, address recepient, bytes32 sender, uint amount, address token);
+    event ApprovedRelayMessage(bytes32 messageID, address  sender, bytes32 recipient, uint amount, address token);
+    event ConfirmWithdrawMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount, address token);
+    event ConfirmCancelMessage(bytes32 messageID, address sender, bytes32 recipient, uint amount, address token);
 
     /*
        * Messages
     */
     mapping(bytes32 => Message) messages;
     mapping(address => bytes32[]) messagesBySender;
+
+    modifier checkMinMaxTransactionValue(uint value) {
+        uint[10] memory limits = limitsContract.getLimits();
+
+        require(value < limits[0] && value < limits[1], "Transaction value is too  small or large");
+        _;
+    }
+
+    modifier checkDayVolumeTransaction() {
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[2]) {
+            _;
+            statusContract.pauseBridgeByVolume();
+        } else {
+            if (statusContract.isPausedByBridgVolume()) {
+                statusContract.resumeBridgeByVolume();
+            }
+            _;
+        }
+    }
+
+    modifier checkPendingDayVolumeTransaction() {
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentVPendingVolumeByDate[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))] > limits[4]) {
+            _;
+            statusContract.pauseBridgeByVolume();
+        } else {
+            if (statusContract.isPausedByBridgVolume()) {
+                statusContract.resumeBridgeByVolume();
+            }
+            _;
+        }
+    }
+
+    modifier checkDayVolumeTransactionForAddress() {
+
+        uint[10] memory limits = limitsContract.getLimits();
+
+        if (currentDayVolumeForAddress[keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()))][msg.sender] > limits[3]) {
+             _;
+             statusContract.pausedByBridgeVolumeForAddress(msg.sender);
+        } else {
+            if (statusContract.getStatusForAccount(msg.sender)) {
+                statusContract.resumedByBridgeVolumeForAddress(msg.sender);
+            }
+            _;
+        }
+    }
+
 
     /*
         check available amount
@@ -92,18 +159,22 @@ contract Transfers is ITransfers, Ownable {
 
     function setTransfer(uint amount, address owner, bytes32 guestAddress) external 
     onlyOwner
+    checkMinMaxTransactionValue(amount)
+    checkPendingDayVolumeTransaction()
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddress()
     allowTransfer(owner, amount) {
          /** to modifier **/
         
         token.transferFrom(owner, address(this), amount);
-
         bytes32 messageID = keccak256(abi.encodePacked(now));
         Message  memory message = Message(messageID, owner, guestAddress, amount, true, TransferStatus.PENDING);
         messages[keccak256(abi.encodePacked(now))] = message;
 
         messagesBySender[owner].push(messageID);
-
-        emit RelayMessage(keccak256(abi.encodePacked(now)), owner, guestAddress, amount);
+        
+        _addPendingVolumeByDate(amount);
+        emit RelayMessage(keccak256(abi.encodePacked(now)), owner, guestAddress, amount, address(token));
     }
 
     function revertTransfer(bytes32 messageID) external 
@@ -112,7 +183,7 @@ contract Transfers is ITransfers, Ownable {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED;
         token.transfer(msg.sender, message.availableAmount);
-        emit RevertMessage(messageID, msg.sender, message.availableAmount);
+        emit RevertMessage(messageID, msg.sender, message.availableAmount, address(token));
     }
 
     function approveTransfer(bytes32 messageID, address spender, bytes32 guestAddress, uint availableAmount) 
@@ -122,15 +193,20 @@ contract Transfers is ITransfers, Ownable {
         Message storage message = messages[messageID];
         message.status = TransferStatus.APPROVED;
 
-        emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount);
+        emit ApprovedRelayMessage(messageID, spender, guestAddress, availableAmount, address(token));
     }
 
     function confirmTransfer(bytes32 messageID) external
     onlyOwner
-    approvedMessage(messageID)  {
+    approvedMessage(messageID)
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddress()  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED;
-        emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
+        bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
+        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(message.availableAmount);
+        currentDayVolumeForAddress[dateID][getHost(messageID)] = currentDayVolumeForAddress[dateID][message.spender].add(message.availableAmount);
+        emit ConfirmMessage(messageID, message.spender, message.guestAddress, message.availableAmount, address(token));
     }
 
     function withdrawTransfer(bytes32 messageID, bytes32  sender, address recipient, uint availableAmount) 
@@ -140,15 +216,17 @@ contract Transfers is ITransfers, Ownable {
         token.transfer(recipient, availableAmount);
         Message  memory message = Message(messageID, msg.sender, sender, availableAmount, true, TransferStatus.WITHDRAW);
         messages[messageID] = message;
-        emit WithdrawMessage(messageID, recipient, sender, availableAmount);
+        emit WithdrawMessage(messageID, recipient, sender, availableAmount, address(token));
     }
 
     function confirmWithdrawTransfer(bytes32 messageID) external 
     onlyOwner
+    checkDayVolumeTransaction()
+    checkDayVolumeTransactionForAddress()
     withdrawMessage(messageID)  {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CONFIRMED_WITHDRAW;
-        emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
+        emit ConfirmWithdrawMessage(messageID, message.spender, message.guestAddress, message.availableAmount, address(token));
     }
 
     function  confirmCancelTransfer(bytes32 messageID) external 
@@ -157,12 +235,14 @@ contract Transfers is ITransfers, Ownable {
         Message storage message = messages[messageID];
         message.status = TransferStatus.CANCELED_CONFIRMED;
 
-        emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount);
+        emit ConfirmCancelMessage(messageID, message.spender, message.guestAddress, message.availableAmount, address(token));
     }
 
-    function init(IERC20 _token) initializer public {
+    function init(IERC20 _token, IStatus _status, ILimits _limits) initializer public {
         Ownable.initialize(msg.sender);
         token = _token;
+        statusContract = _status;
+        limitsContract = _limits;
     }
 
     function getMessageStatus(bytes32 messageID) public view returns (uint) {
@@ -187,6 +267,15 @@ contract Transfers is ITransfers, Ownable {
 
     function _getFirstMessageIDByAddress(address sender) public view returns (bytes32) {
         return messagesBySender[sender][0];
+    }
+
+    function _addVolumeByMessageID(bytes32 messageID) private {
+        
+    }  
+
+    function _addPendingVolumeByDate(uint256 availableAmount) private {
+        bytes32 dateID = keccak256(abi.encodePacked(now.getYear(), now.getMonth(), now.getDay()));
+        currentVolumeByDate[dateID] = currentVolumeByDate[dateID].add(availableAmount);
     }
 
 }

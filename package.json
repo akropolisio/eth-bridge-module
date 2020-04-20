@@ -12,7 +12,8 @@
         "lint": "solhint -c .solhint.json contracts/**/*.sol",
         "analyze": "npx truffle run verify",
         "coverage": "scripts/coverage.sh",
-        "deploy": "scripts/deploy.sh"
+        "deploy": "scripts/deploy.sh",
+        "contract-size":"npx truffle run contract-size"
     },
     "dependencies": {
         "@codechecks/client": "^0.1.10",
@@ -47,6 +48,7 @@
         "typechain-target-truffle": "git+https://github.com/pash7ka/TypeChain/#dist-typechain-target-truffle",
         "typescript": "3.0.1",
         "web3-provider-engine": "^15.0.3",
-        "web3-utils": "^1.2.1"
+        "web3-utils": "^1.2.1",
+        "truffle-contract-size":"1.0.1"
     }
 }
